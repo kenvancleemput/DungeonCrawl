@@ -1,6 +1,11 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 
+/**
+ * This is the player in the "Dungeon Crawl" application.
+ * This holds all player data, like name, inventory, health, armour_class and to_hit.
+ * Methods include all those necessary to manipulate these fields, as methods for item manipulation on the player level.
+ */
 public class Player {
     private String name;
     private double maxWeightInBag;

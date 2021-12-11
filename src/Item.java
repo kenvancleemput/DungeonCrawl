@@ -1,3 +1,8 @@
+/**
+ * This holds all the items for the "Dungeon Crawl" application.
+ * Items include both equippable and consumable items, as their methods if necessary.
+ */
+
 public class Item {
     private String description;
     private String name;

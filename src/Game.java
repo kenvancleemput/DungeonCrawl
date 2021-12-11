@@ -2,8 +2,8 @@ import java.security.PrivateKey;
 import java.util.HashSet;
 
 /**
- *  This class is the main class of the "World of Zuul" application.
- *  "World of Zuul" is a very simple, text based adventure game.  Users
+ *  This class is the main class of the "Dungeon Crawl" application.
+ *  "Dungeon Crawl" is a very simple, text based adventure game.  Users
  *  can walk around some scenery. That's all. It should really be extended
  *  to make it more interesting!
  *

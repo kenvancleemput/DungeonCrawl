@@ -5,8 +5,8 @@ import java.util.Random;
 /**
  * Class Room - a room in an adventure game.
  *
- * This class is part of the "Dungeon crawler" application.
- * "Dungeon crawler" is a very simple, text based adventure game.
+ * This class is part of the "Dungeon crawl" application.
+ * "Dungeon crawl" is a very simple, text based adventure game.
  *
  * A "Room" represents one location in the scenery of the game.  It is
  * connected to other rooms via exits.  The exits are labelled north,
