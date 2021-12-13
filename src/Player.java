@@ -68,13 +68,14 @@ public class Player {
         return true;
     }
 
-    public void take(String name) {
+    public Boolean take(String name) {
         if (currentRoom.hasItem(name)) {
             Item item = currentRoom.getItem(name);
             if (item.isMovable())
                 bag.add(item);
             currentRoom.removeItem(item);
-        }
+            return true;
+        } return false;
     }
 
     public String inventory() {
@@ -100,15 +101,17 @@ public class Player {
     }
 
 
-    public void drop(String itemName) {
+    public Boolean drop(String itemName) {
         Iterator<Item> it = bag.iterator();
         while (it.hasNext()) {
-            {
-                Item item = it.next();
-                it.remove();
-                currentRoom.addItem(item);
-            }
+                {
+                    Item item = it.next();
+                    it.remove();
+                    currentRoom.addItem(item);
+                    return true;
+                }
+            } return false;
         }
     }
-}
+
 

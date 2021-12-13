@@ -41,7 +41,7 @@ public class Game {
      */
     private void createRooms() {
         Room outside, theater, pub, lab, office, cellar, armoury;
-        Item mace, spear, elven_chain_mail, healing_potion, sword, shield;
+        Item mace, spear, elvenchainmail, healingpotion, sword, shield;
 
 
         // create the rooms
@@ -75,8 +75,8 @@ public class Game {
         //Create items
         mace = new Item("A sturdy mace", 5, "mace", true, true, false);
         spear = new Item("A spear made from bone", 4.5, "shield", true, true, false);
-        elven_chain_mail = new Item("An elven chain mail ", 0.3, "elven chain mail", true, true, false);
-        healing_potion = new Item("a healing potion", 5.5, "healing potion", true, false, true);
+        elvenchainmail = new Item("An elven chain mail ", 0.3, "elven chain mail", true, true, false);
+        healingpotion = new Item("a healing potion", 5.5, "healing potion", true, false, true);
         sword = new Item("a foam sword", 0.7, "sword", true, true, false);
         shield = new Item("a shield made of cardboard", 0.2, "shield", true, true, false);
 
@@ -85,8 +85,8 @@ public class Game {
         for(Room room: collection){
             room.addItem(mace);
             room.addItem(spear);
-            room.addItem(elven_chain_mail);
-            room.addItem(healing_potion);
+            room.addItem(elvenchainmail);
+            room.addItem(healingpotion);
             room.addItem(sword);
             room.addItem(shield);
             room.getRandomItems();
@@ -199,27 +199,26 @@ public class Game {
         }
     }
 
-    private boolean takeItem(Command command) {
+    private void takeItem(Command command) {
         if (!command.hasSecondWord()) {
             // if there is no second word, we don't know where to go...
             System.out.println("Take what?");
-            return false;
         } else {
-            if (player.getCurrentRoom().hasItem(command.getSecondWord())) {
-                player.take(command.getSecondWord());
+            if (player.take(command.getSecondWord()));
                 System.out.println(player.getInfo());
             }
-        } return true;
-    }
+        }
 
     private void dropItem(Command command){
         if (!command.hasSecondWord()) {
             // if there is no second word, we don't know where to go...
             System.out.println("Drop what?");
         } else {
-            if(player.inventory().contains(command.getSecondWord()))
-                player.drop(command.getSecondWord());
-            System.out.println(player.getInfo());
+            if(player.drop(command.getSecondWord())) {
+                System.out.println(player.getInfo());
+            } else {
+                System.out.println("My bag does not contain " + command.getSecondWord());
+            }
         }
     }
 
