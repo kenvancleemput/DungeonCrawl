@@ -23,6 +23,7 @@ public class Game {
     private Room currentRoom;
     private Player player;
     private HashSet<Room> collection;
+    private HashSet<Monster> monsters;
 
     /**
      * Create the game and initialise its internal map.

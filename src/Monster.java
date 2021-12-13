@@ -1,3 +1,5 @@
+import java.util.HashSet;
+
 /**
  * This class contains all the monster basics for "Dungeon Crawl".
  * This will include the room it is currently in, and all the required methods for moving and combat.
@@ -10,6 +12,8 @@ public class Monster {
     private int health;
     private int armour_class;
     private int attack_bonus;
+    private HashSet<Room> locations;
+    private Room currentRoom;
 
     public Monster(String name, String description, int health, int armour_class, int attack_bonus) {
         this.name = name;
