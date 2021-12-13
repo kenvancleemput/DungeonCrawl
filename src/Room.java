@@ -44,7 +44,7 @@ public class Room
      * Define the exits of this room.  Every direction either leads
      * to another room or is null (no exit there).
      * @param north The north exit.
-     * @param east The east east.
+     * @param east The east exit.
      * @param south The south exit.
      * @param west The west exit.
      */
@@ -126,6 +126,7 @@ public class Room
     public void removeItem(Item item){
         items.remove(item);
     }
+
 }
 
 

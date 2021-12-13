@@ -1,5 +1,6 @@
-import java.security.PrivateKey;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
 
 /**
  *  This class is the main class of the "Dungeon Crawl" application.
@@ -22,17 +23,19 @@ public class Game {
     private Parser parser;
     private Room currentRoom;
     private Player player;
-    private HashSet<Room> collection;
-    private HashSet<Monster> monsters;
+    private HashMap<Integer, Room> collection;
+    private NPC NPC;
+    private HashSet<NPC> spawnList;
 
     /**
      * Create the game and initialise its internal map.
      */
     public Game() {
         player = new Player("Matthew");
-        collection= new HashSet<>();
+        collection= new HashMap<>();
         createRooms();
         parser = new Parser();
+        spawnList = new HashSet<>();
 
     }
 
@@ -40,12 +43,13 @@ public class Game {
      * Create all the rooms and link their exits together.
      */
     private void createRooms() {
-        Room outside, theater, pub, lab, office, cellar, armoury;
+        Room entrance, theater, pub, lab, office, cellar, armoury;
         Item mace, spear, elvenchainmail, healingpotion, sword, shield;
+        NPC rat, goblin, orc, trader, boss;
 
 
         // create the rooms
-        outside = new Room("outside the main entrance of the university");
+        entrance = new Room("While your eyes are adjusting to the flickering torchlight of the single torch which lights the hallway at the end of the stairs, you can't help but notice the brown smears on the floor, leading to the room east of you.\nFrom the room to the west, there's an unpleasant odour wafting your way.\nTo the north of you, a steel door stands closed, uninviting and with scratch marks all over it.\nWhich way will you go?");
         theater = new Room("in a lecture theater");
         pub = new Room("in the campus pub");
         lab = new Room("in a computing lab");
@@ -53,22 +57,22 @@ public class Game {
         cellar = new Room("In the cellar with all the provisions for the pub");
 
         // add rooms to collection HashSet
-        collection.add(outside);
-        collection.add(theater);
-        collection.add(pub);
-        collection.add(lab);
-        collection.add(office);
-        collection.add(cellar);
+        collection.put (0 ,entrance);
+        collection.put(1, theater);
+        collection.put(2, pub);
+        collection.put(3, lab);
+        collection.put(4, office);
+        collection.put(5, cellar);
 
         // initialise room exits
-        outside.setExit("east", theater);
-        outside.setExit("south", lab);
-        outside.setExit("west", pub);
-        theater.setExit("west", outside);
-        pub.setExit("east", outside);
+        entrance.setExit("east", theater);
+        entrance.setExit("south", lab);
+        entrance.setExit("west", pub);
+        theater.setExit("west", entrance);
+        pub.setExit("east", entrance);
         pub.setExit("down", cellar);
         cellar.setExit("up", pub);
-        lab.setExit("north", outside);
+        lab.setExit("north", entrance);
         lab.setExit("east", office);
         office.setExit("west", lab);
 
@@ -92,7 +96,29 @@ public class Game {
             room.getRandomItems();
         }
 
-        player.setCurrentRoom(outside);  // start game outside
+        // Create NPC's
+        rat = new NPC("Rat", "A mutated rat", 5,10,0,false);
+        goblin = new NPC("Goblin","A small green humanoid",10,12,2,false);
+        orc = new NPC("Orc","A towering green giant",15,14,4,false);
+        trader = new NPC("Khajit","A friendly gnome selling some wares",200,20,10,true);
+        boss = new NPC("The Skeleton King","A skeleton with a shining crown and a familiar sword",30,18,6,false);
+
+        // Add NPC's to Hashset
+        spawnList.add(rat);
+        spawnList.add(goblin);
+        spawnList.add(orc);
+        spawnList.add(trader);
+        spawnList.add(boss);
+
+        //Add NPC's to random rooms
+        for(NPC npc:spawnList){
+            if (!npc.getName().equals(boss)){
+                Random r= new Random();
+                npc.setCurrentRoom(collection.get(r.nextInt(collection.size())));
+            }
+        }
+
+        player.setCurrentRoom(entrance);  // start game outside
 
 
     }
@@ -119,11 +145,11 @@ public class Game {
      */
     private void printWelcome() {
         System.out.println();
-        System.out.println("Welcome to the World of Zuul!");
-        System.out.println("World of Zuul is a new, incredibly boring adventure game.");
+        System.out.println("Welcome to Dungeon Crawl!");
+        System.out.println("Dungeon Crawl tasks you with finding your family's lost weapon");
         System.out.println("Type 'help' if you need help.");
-        System.out.println();
-        printLocationInfo();
+        System.out.println("It's with a decent amount of trepidation that you descend the stairs in to the dungeon.\nYou've heard the rumours of the wealth hoarded by its denizens.\nYou know for a fact that your brother descended into here, never to be seen again.\nWith him, he was carrying the ancestral blade of your family.\nCan you retrieve the blade and defeat the evil that lurks here?");
+        printInfo();
     }
 
     /**
@@ -235,6 +261,10 @@ public class Game {
         } else {
             return true;  // signal that we want to quit
         }
+    }
+    private void printInfo(){
+        System.out.println(player.getCurrentRoom().getLongDescription());
+        System.out.println();
     }
 
     private void printLocationInfo() {

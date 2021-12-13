@@ -6,7 +6,7 @@ import java.util.HashSet;
  * Version 0.1: monsters will not have loot, as that is handled by the room class.
  */
 
-public class Monster {
+public class NPC {
     private String name;
     private String description;
     private int health;
@@ -14,13 +14,16 @@ public class Monster {
     private int attack_bonus;
     private HashSet<Room> locations;
     private Room currentRoom;
+    private Boolean isFriendly;
 
-    public Monster(String name, String description, int health, int armour_class, int attack_bonus) {
+    public NPC(String name, String description, int health, int armour_class, int attack_bonus, boolean isFriendly) {
         this.name = name;
         this.description = description;
         this.health = health;
         this.armour_class = armour_class;
         this.attack_bonus = attack_bonus;
+        this.isFriendly = isFriendly;
+        locations = new HashSet<>();
     }
 
     public void setHealth(int health) {
@@ -37,5 +40,17 @@ public class Monster {
 
     public int getHealth() {
         return health;
+    }
+
+    public Room getCurrentRoom() {
+        return currentRoom;
+    }
+
+    public void setLocations(HashSet<Room> locations) {
+        this.locations = locations;
+    }
+
+    public void setCurrentRoom(Room currentRoom) {
+        this.currentRoom = currentRoom;
     }
 }
