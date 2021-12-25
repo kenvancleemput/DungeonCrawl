@@ -12,18 +12,17 @@ public class NPC {
     private int health;
     private int armour_class;
     private int attack_bonus;
-    private HashSet<Room> locations;
     private Room currentRoom;
     private Boolean isFriendly;
 
-    public NPC(String name, String description, int health, int armour_class, int attack_bonus, boolean isFriendly) {
+    public NPC(String name, String description, int health, int armour_class, int attack_bonus, boolean isFriendly, Room startingroom) {
         this.name = name;
         this.description = description;
         this.health = health;
         this.armour_class = armour_class;
         this.attack_bonus = attack_bonus;
         this.isFriendly = isFriendly;
-        locations = new HashSet<>();
+        currentRoom=startingroom;
     }
 
     public void setHealth(int health) {
@@ -44,10 +43,6 @@ public class NPC {
 
     public Room getCurrentRoom() {
         return currentRoom;
-    }
-
-    public void setLocations(HashSet<Room> locations) {
-        this.locations = locations;
     }
 
     public void setCurrentRoom(Room currentRoom) {

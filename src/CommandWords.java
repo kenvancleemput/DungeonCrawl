@@ -1,3 +1,5 @@
+import java.util.HashMap;
+
 /**
  * This class is part of the "Dungeon Crawl" application.
  * "Dungeon Crawl" is a very simple, text based adventure game.
@@ -12,16 +14,19 @@
 public class CommandWords
 {
     // a constant array that holds all valid command words
-    private static final String[] validCommands = {
-            "go", "quit", "help", "look", "eat", "take", "drop"
-    };
+    private HashMap<String, CommandWord> validCommands;
+
 
     /**
      * Constructor - initialise the command words.
      */
-    public CommandWords()
-    {
-        // nothing to do at the moment...
+    public CommandWords() {
+        validCommands = new HashMap<String, CommandWord>();
+        for (CommandWord word : CommandWord.values()) {
+            if (word != CommandWord.UNKNOWN) {
+                    validCommands.put(word.getWord(), word);
+            }
+        }
     }
 
     /**
@@ -31,19 +36,22 @@ public class CommandWords
      */
     public boolean isCommand(String aString)
     {
-        for(int i = 0; i < validCommands.length; i++) {
-            if(validCommands[i].equals(aString))
-                return true;
+        return validCommands.containsKey(aString);
         }
-        // if we get here, the string was not found in the commands
-        return false;
-    }
+
 
     public String showAll() {
         String show = "";
-        for (String command : validCommands) {
+        for (String command : validCommands.keySet()) {
             show += command + " ";
         }
         return show;
+    }
+
+    public CommandWord getCommand(String aString) {
+        if (isCommand(aString)) {
+            return validCommands.get(aString);
+        }
+        return CommandWord.UNKNOWN;
     }
 }

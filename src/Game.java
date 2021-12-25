@@ -1,6 +1,4 @@
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Random;
+import java.util.*;
 
 /**
  *  This class is the main class of the "Dungeon Crawl" application.
@@ -25,7 +23,7 @@ public class Game {
     private Player player;
     private HashMap<Integer, Room> collection;
     private NPC NPC;
-    private HashSet<NPC> spawnList;
+    private ArrayList<NPC> spawnList;
 
     /**
      * Create the game and initialise its internal map.
@@ -33,9 +31,10 @@ public class Game {
     public Game() {
         player = new Player("Matthew");
         collection= new HashMap<>();
+        spawnList = new ArrayList<NPC>();
         createRooms();
         parser = new Parser();
-        spawnList = new HashSet<>();
+
 
     }
 
@@ -43,12 +42,13 @@ public class Game {
      * Create all the rooms and link their exits together.
      */
     private void createRooms() {
-        Room entrance, theater, pub, lab, office, cellar, armoury;
+        Room entrance, theater, pub, lab, office, cellar, armoury, waitingroom;
         Item mace, spear, elvenchainmail, healingpotion, sword, shield;
         NPC rat, goblin, orc, trader, boss;
 
 
         // create the rooms
+        waitingroom = new Room("room for all the monsters before the game starts");
         entrance = new Room("While your eyes are adjusting to the flickering torchlight of the single torch which lights the hallway at the end of the stairs, you can't help but notice the brown smears on the floor, leading to the room east of you.\nFrom the room to the west, there's an unpleasant odour wafting your way.\nTo the north of you, a steel door stands closed, uninviting and with scratch marks all over it.\nWhich way will you go?");
         theater = new Room("in a lecture theater");
         pub = new Room("in the campus pub");
@@ -86,37 +86,24 @@ public class Game {
 
         // add items to collections per room
 
-        for(Room room: collection){
-            room.addItem(mace);
-            room.addItem(spear);
-            room.addItem(elvenchainmail);
-            room.addItem(healingpotion);
-            room.addItem(sword);
-            room.addItem(shield);
-            room.getRandomItems();
+        for(Integer i:collection.keySet()){
+            collection.get(i).addItem(mace);
+            collection.get(i).addItem(spear);
+            collection.get(i).addItem(elvenchainmail);
+            collection.get(i).addItem(healingpotion);
+            collection.get(i).addItem(sword);
+            collection.get(i).addItem(shield);
+            collection.get(i).getRandomItems();
         }
 
         // Create NPC's
-        rat = new NPC("Rat", "A mutated rat", 5,10,0,false);
-        goblin = new NPC("Goblin","A small green humanoid",10,12,2,false);
-        orc = new NPC("Orc","A towering green giant",15,14,4,false);
-        trader = new NPC("Khajit","A friendly gnome selling some wares",200,20,10,true);
-        boss = new NPC("The Skeleton King","A skeleton with a shining crown and a familiar sword",30,18,6,false);
+        rat = new NPC("Rat", "A mutated rat", 5,10,0,false,waitingroom);
+        goblin = new NPC("Goblin","A small green humanoid",10,12,2,false,waitingroom);
+        orc = new NPC("Orc","A towering green giant",15,14,4,false,waitingroom);
+        trader = new NPC("Khajit","A friendly gnome selling some wares",200,20,10,true,waitingroom);
+        boss = new NPC("The Skeleton King","A skeleton with a shining crown and a familiar sword",30,18,6,false,waitingroom);
 
-        // Add NPC's to Hashset
-        spawnList.add(rat);
-        spawnList.add(goblin);
-        spawnList.add(orc);
-        spawnList.add(trader);
-        spawnList.add(boss);
-
-        //Add NPC's to random rooms
-        for(NPC npc:spawnList){
-            if (!npc.getName().equals(boss)){
-                Random r= new Random();
-                npc.setCurrentRoom(collection.get(r.nextInt(collection.size())));
-            }
-        }
+        Collections.addAll(spawnList,rat, goblin, orc, trader, boss);
 
         player.setCurrentRoom(entrance);  // start game outside
 
@@ -161,30 +148,35 @@ public class Game {
     private boolean processCommand(Command command) {
         boolean wantToQuit = false;
 
-        if (command.isUnknown()) {
-            System.out.println("I don't know what you mean...");
-            return false;
+        CommandWord commandWord = command.getCommandWord();
+        switch (commandWord){
+            case UNKNOWN:
+                System.out.println("I don't know what you mean...");
+                break;
+            case HELP:
+                printHelp();
+                break;
+            case GO:
+                goRoom(command);
+                break;
+            case LOOK:
+                printLocationInfo();
+                break;
+            case EAT:
+                eat();
+                break;
+            case DROP:
+                dropItem(command);
+                break;
+            case TAKE:
+                takeItem(command);
+                break;
+            case QUIT:
+                wantToQuit=true;
+                break;
+            default:
+                System.out.println("I don't know what you mean");
         }
-
-        String commandWord = command.getCommandWord();
-        if (commandWord.equals("help")) {
-            printHelp();
-        } else if (commandWord.equals("go")) {
-            goRoom(command);
-        } else if (commandWord.equals("look")) {
-            printLocationInfo();
-        } else if (commandWord.equals("eat")) {
-            System.out.println("You have already eaten and are no longer hungry.");
-            System.out.println(" ");
-        } else if (commandWord.equals("take")) {
-            takeItem(command);
-        } else if (commandWord.equals("drop")) {
-            dropItem(command);
-        } else if (commandWord.equals("quit")) {
-            wantToQuit = quit(command);
-        }
-
-
         return wantToQuit;
     }
 
@@ -269,6 +261,11 @@ public class Game {
 
     private void printLocationInfo() {
         System.out.println(player.getInfo());
+        System.out.println();
+    }
+
+    private void eat() {
+        System.out.println("I have eaten and I am not hungry anymore");
         System.out.println();
     }
 
