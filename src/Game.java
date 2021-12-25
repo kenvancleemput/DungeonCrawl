@@ -20,18 +20,18 @@ import java.util.*;
 public class Game {
     private Parser parser;
     private Room currentRoom;
-    private Player player;
+    private Character player;
     private HashMap<Integer, Room> collection;
-    private NPC NPC;
-    private ArrayList<NPC> spawnList;
+    private Character NPC;
+    private ArrayList<Character> spawnList;
 
     /**
      * Create the game and initialise its internal map.
      */
     public Game() {
-        player = new Player("Matthew");
+        player = new Player("Albrecht", 10, 10, 2,4, true);
         collection= new HashMap<>();
-        spawnList = new ArrayList<NPC>();
+        spawnList = new ArrayList<Character>();
         createRooms();
         parser = new Parser();
 
@@ -44,7 +44,7 @@ public class Game {
     private void createRooms() {
         Room entrance, theater, pub, lab, office, cellar, armoury, waitingroom;
         Item mace, spear, elvenchainmail, healingpotion, sword, shield;
-        NPC rat, goblin, orc, trader, boss;
+        Character rat, goblin, orc, trader, boss;
 
 
         // create the rooms
@@ -96,12 +96,12 @@ public class Game {
             collection.get(i).getRandomItems();
         }
 
-        // Create NPC's
-        rat = new NPC("Rat", "A mutated rat", 5,10,0,false,waitingroom);
-        goblin = new NPC("Goblin","A small green humanoid",10,12,2,false,waitingroom);
-        orc = new NPC("Orc","A towering green giant",15,14,4,false,waitingroom);
-        trader = new NPC("Khajit","A friendly gnome selling some wares",200,20,10,true,waitingroom);
-        boss = new NPC("The Skeleton King","A skeleton with a shining crown and a familiar sword",30,18,6,false,waitingroom);
+        // Create Characters
+        rat = new NPC("Rat", 5, 10,1,4, true,false, "A giant rat");
+        goblin = new NPC("Goblin",10,12,2,5,true,false,"A small green humanoid");
+        orc = new NPC("Orc",15,14,3,6,true,false,"A towering green giant");
+        trader = new NPC("Khajit",200,20,10,10,false,true,"A friendly gnome selling some wares");
+        boss = new NPC("The Skeleton King",30,18,6,8,false, false,"A skeleton with a shining crown and a familiar sword");
 
         Collections.addAll(spawnList,rat, goblin, orc, trader, boss);
 
