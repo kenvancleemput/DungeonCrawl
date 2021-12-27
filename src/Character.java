@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Character {
+abstract public class Character {
     private String name;
     private Room currentRoom;
     private int health;
@@ -78,6 +78,10 @@ public class Character {
         return info;
     }
 
+    public Boolean getMovable() {
+        return movable;
+    }
+
     public boolean go(String direction) {
         Room nextRoom = getCurrentRoom().getExit(direction);
         if (nextRoom == null) {
@@ -134,4 +138,6 @@ public class Character {
         }
         return null;
     }
+
+    abstract public String getDescription();
 }

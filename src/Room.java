@@ -127,6 +127,19 @@ public class Room
         items.remove(item);
     }
 
+    public String getRandomExit(){
+        int index= 0;
+        HashMap<Integer, String> getExit = new HashMap<>();
+        for(String possibleExits: exits.keySet()){
+            getExit.put(index, possibleExits);
+            index++;
+        }
+        Random r= new Random();
+        int i= r.nextInt(getExit.size());
+        return getExit.get(i);
+
+    }
+
 }
 
 

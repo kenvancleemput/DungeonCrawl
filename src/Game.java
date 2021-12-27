@@ -56,7 +56,7 @@ public class Game {
         office = new Room("in the computing admin office");
         cellar = new Room("In the cellar with all the provisions for the pub");
 
-        // add rooms to collection HashSet
+        // add rooms to collection ArrayList
         collection.put (0 ,entrance);
         collection.put(1, theater);
         collection.put(2, pub);
@@ -103,12 +103,29 @@ public class Game {
         trader = new NPC("Khajit",200,20,10,10,false,true,"A friendly gnome selling some wares");
         boss = new NPC("The Skeleton King",30,18,6,8,false, false,"A skeleton with a shining crown and a familiar sword");
 
+        // add NPC's to spawnList
         Collections.addAll(spawnList,rat, goblin, orc, trader, boss);
+
+        //set rooms for NPC's
+        for(Character character:spawnList){
+            if(character.getName().equals("The Skeleton King")){
+                boss.setCurrentRoom(cellar);
+            } else {
+                Random r= new Random();
+                int i=r.nextInt(collection.size());
+                if(i==0){
+                    character.setCurrentRoom(collection.get(i+1));
+                }
+                character.setCurrentRoom(collection.get(i));
+            }
+        }
 
         player.setCurrentRoom(entrance);  // start game outside
 
 
     }
+
+
 
     /**
      * Main play routine.  Loops until end of play.
@@ -147,6 +164,10 @@ public class Game {
      */
     private boolean processCommand(Command command) {
         boolean wantToQuit = false;
+        if(checkNPC()){
+
+        }
+
 
         CommandWord commandWord = command.getCommandWord();
         switch (commandWord){
@@ -214,6 +235,12 @@ public class Game {
             System.out.println("There is no door!");
         } else {
             printLocationInfo();
+            for(Character character:spawnList ){
+                if(character.getMovable()){
+                    String exit=character.getCurrentRoom().getRandomExit();
+                    character.go(exit);
+                }
+            }
         }
     }
 
@@ -267,6 +294,15 @@ public class Game {
     private void eat() {
         System.out.println("I have eaten and I am not hungry anymore");
         System.out.println();
+    }
+
+    private Character checkNPC(){
+        Character npcPresent=null;
+        for (Character character: spawnList){
+            if(character.getCurrentRoom()==player.getCurrentRoom()){
+                npcPresent=character;
+            }
+        } return npcPresent;
     }
 
 
