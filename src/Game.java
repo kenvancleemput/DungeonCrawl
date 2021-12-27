@@ -24,6 +24,7 @@ public class Game {
     private HashMap<Integer, Room> collection;
     private Character NPC;
     private ArrayList<Character> spawnList;
+    private HashSet<Character> charsInRoom;
 
     /**
      * Create the game and initialise its internal map.
@@ -32,6 +33,7 @@ public class Game {
         player = new Player("Albrecht", 10, 10, 2,4, true);
         collection= new HashMap<>();
         spawnList = new ArrayList<Character>();
+        charsInRoom= new HashSet<>();
         createRooms();
         parser = new Parser();
 
@@ -119,8 +121,9 @@ public class Game {
                 character.setCurrentRoom(collection.get(i));
             }
         }
+        // start game outside
+        player.setCurrentRoom(entrance);
 
-        player.setCurrentRoom(entrance);  // start game outside
 
 
     }
@@ -164,7 +167,17 @@ public class Game {
      */
     private boolean processCommand(Command command) {
         boolean wantToQuit = false;
-        if(checkNPC()){
+        checkNPC();
+        if(charsInRoom.size()>0){
+            for(Character character:charsInRoom){
+                if(!character.getFriendly()){
+                    fightSequence(character);
+                } else {
+                    //trade
+                }
+            }
+
+
 
         }
 
@@ -296,14 +309,51 @@ public class Game {
         System.out.println();
     }
 
-    private Character checkNPC(){
-        Character npcPresent=null;
-        for (Character character: spawnList){
+    private void checkNPC(){
+
+            for (Character character: spawnList){
             if(character.getCurrentRoom()==player.getCurrentRoom()){
-                npcPresent=character;
+                charsInRoom.add(character);
             }
-        } return npcPresent;
+        }
     }
+
+    private void fightSequence(Character character){
+        HashMap<Character, Integer> fight = new HashMap<>();
+        fight.put(player, player.getHealth());
+        fight.put(character, character.getHealth());
+        while (player.getHealth()>0 || character.getHealth()>0){
+            for(Character character1:fight.keySet()){
+                if(character1.equals(player)){
+                    Random attackRoll=new Random();
+                    int i= attackRoll.nextInt(20)+1+ player.getToHit();
+                    if(i>=character.getArmourClass()){
+                        Random damage= new Random();
+                        int j=damage.nextInt(player.getDamageCode());
+                        character.setHealth(character.getHealth()-j);
+                        System.out.println("You hit and do " + j + " damage.");
+                    } else {
+                        System.out.println("You miss and do no damage");
+                    }
+                } else {
+                    Random attackRoll=new Random();
+                    int i= attackRoll.nextInt(20)+1+ character1.getToHit();
+                    if(i>= player.getArmourClass()){
+                        Random damage= new Random();
+                        int j=damage.nextInt(character1.getDamageCode());
+                        player.setHealth(player.getHealth()-j);
+                        System.out.println(character1.getName()+" hits and does " + j + " damage.");
+
+                    }
+                }
+            }
+        }
+            if(player.getHealth()>0){
+                System.out.println("You are victorious");
+            } else {
+                System.out.println("You lose the game");
+            }
+        }
 
 
 

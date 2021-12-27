@@ -19,5 +19,7 @@ public class NPC extends Character{
         return description;
     }
 
-
+    public boolean getFriendly() {
+        return isFriendly;
+    }
 }

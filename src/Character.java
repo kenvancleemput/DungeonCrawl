@@ -140,4 +140,6 @@ abstract public class Character {
     }
 
     abstract public String getDescription();
+
+    abstract public boolean getFriendly();
 }

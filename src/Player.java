@@ -14,6 +14,16 @@ public class Player extends Character {
         maxWeightInBag = 25;
     }
 
+    @Override
+    public String getDescription() {
+        return null;
+    }
+
+    @Override
+    public boolean getFriendly() {
+        return false;
+    }
+
     public void setMaxWeightInBag(double maxWeightInBag) {
         this.maxWeightInBag = maxWeightInBag;
     }
