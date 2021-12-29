@@ -162,4 +162,7 @@ abstract public class Character {
             return false;
         } return true;
     }
+
+    public void drink() {
+    }
 }

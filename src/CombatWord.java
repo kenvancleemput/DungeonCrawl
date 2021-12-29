@@ -1,5 +1,5 @@
 public enum CombatWord {
-    ATTACK("attack"),DRINK("drink"),RUN("run"), UNKNOWN("");
+    ATTACK("attack"),DRINK("drink"),RUN("run"), UNKNOWN(""),INFO("info");
 
     private String word;
 
