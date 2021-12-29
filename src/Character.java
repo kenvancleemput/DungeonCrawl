@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 
 abstract public class Character {
     private String name;
@@ -142,4 +143,23 @@ abstract public class Character {
     abstract public String getDescription();
 
     abstract public boolean getFriendly();
+
+    public int attack(){
+        Random attackRoll=new Random();
+        int i= attackRoll.nextInt(19)+1;
+        int toHit=i+getToHit();
+        return toHit;
+    }
+
+    public int damage(){
+        Random damageRoll=new Random();
+        int damage= damageRoll.nextInt(damageCode-1)+1;
+        return damage;
+    }
+
+    public boolean alive(){
+        if(health<=0){
+            return false;
+        } return true;
+    }
 }

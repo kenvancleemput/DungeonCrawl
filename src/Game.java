@@ -24,16 +24,16 @@ public class Game {
     private HashMap<Integer, Room> collection;
     private Character NPC;
     private ArrayList<Character> spawnList;
-    private HashSet<Character> charsInRoom;
+    private HashMap<Integer, Character> charsInRoom;
 
     /**
      * Create the game and initialise its internal map.
      */
     public Game() {
-        player = new Player("Albrecht", 10, 10, 2,4, true);
-        collection= new HashMap<>();
+        player = new Player("Albrecht", 10, 10, 2, 4, true);
+        collection = new HashMap<>();
         spawnList = new ArrayList<Character>();
-        charsInRoom= new HashSet<>();
+        charsInRoom = new HashMap<>();
         createRooms();
         parser = new Parser();
 
@@ -59,7 +59,7 @@ public class Game {
         cellar = new Room("In the cellar with all the provisions for the pub");
 
         // add rooms to collection ArrayList
-        collection.put (0 ,entrance);
+        collection.put(0, entrance);
         collection.put(1, theater);
         collection.put(2, pub);
         collection.put(3, lab);
@@ -88,7 +88,7 @@ public class Game {
 
         // add items to collections per room
 
-        for(Integer i:collection.keySet()){
+        for (Integer i : collection.keySet()) {
             collection.get(i).addItem(mace);
             collection.get(i).addItem(spear);
             collection.get(i).addItem(elvenchainmail);
@@ -99,24 +99,24 @@ public class Game {
         }
 
         // Create Characters
-        rat = new NPC("Rat", 5, 10,1,4, true,false, "A giant rat");
-        goblin = new NPC("Goblin",10,12,2,5,true,false,"A small green humanoid");
-        orc = new NPC("Orc",15,14,3,6,true,false,"A towering green giant");
-        trader = new NPC("Khajit",200,20,10,10,false,true,"A friendly gnome selling some wares");
-        boss = new NPC("The Skeleton King",30,18,6,8,false, false,"A skeleton with a shining crown and a familiar sword");
+        rat = new NPC("Rat", 5, 10, 1, 4, true, false, "A giant rat");
+        goblin = new NPC("Goblin", 10, 12, 2, 5, true, false, "A small green humanoid");
+        orc = new NPC("Orc", 15, 14, 3, 6, true, false, "A towering green giant");
+        trader = new NPC("Khajit", 200, 20, 10, 10, false, true, "A friendly gnome selling some wares");
+        boss = new NPC("The Skeleton King", 30, 18, 6, 8, false, false, "A skeleton with a shining crown and a familiar sword");
 
         // add NPC's to spawnList
-        Collections.addAll(spawnList,rat, goblin, orc, trader, boss);
+        Collections.addAll(spawnList, rat, goblin, orc, trader, boss);
 
         //set rooms for NPC's
-        for(Character character:spawnList){
-            if(character.getName().equals("The Skeleton King")){
+        for (Character character : spawnList) {
+            if (character.getName().equals("The Skeleton King")) {
                 boss.setCurrentRoom(cellar);
             } else {
-                Random r= new Random();
-                int i=r.nextInt(collection.size());
-                if(i==0){
-                    character.setCurrentRoom(collection.get(i+1));
+                Random r = new Random();
+                int i = r.nextInt(collection.size());
+                if (i == 0) {
+                    character.setCurrentRoom(collection.get(i + 1));
                 }
                 character.setCurrentRoom(collection.get(i));
             }
@@ -125,9 +125,7 @@ public class Game {
         player.setCurrentRoom(entrance);
 
 
-
     }
-
 
 
     /**
@@ -167,23 +165,9 @@ public class Game {
      */
     private boolean processCommand(Command command) {
         boolean wantToQuit = false;
-        checkNPC();
-        if(charsInRoom.size()>0){
-            for(Character character:charsInRoom){
-                if(!character.getFriendly()){
-                    fightSequence(character);
-                } else {
-                    //trade
-                }
-            }
-
-
-
-        }
-
 
         CommandWord commandWord = command.getCommandWord();
-        switch (commandWord){
+        switch (commandWord) {
             case UNKNOWN:
                 System.out.println("I don't know what you mean...");
                 break;
@@ -206,159 +190,137 @@ public class Game {
                 takeItem(command);
                 break;
             case QUIT:
-                wantToQuit=true;
+                wantToQuit = true;
                 break;
             default:
                 System.out.println("I don't know what you mean");
         }
+        checkNPC();
+        if (charsInRoom.size() > 1) {
+
+
+        }
         return wantToQuit;
     }
 
-    // implementations of user commands:
+        // implementations of user commands:
 
-    /**
-     * Print out some help information.
-     * Here we print some stupid, cryptic message and a list of the
-     * command words.
-     */
-    private void printHelp() {
-        System.out.println("Player " + player.getName() + " is lost and alone, and wanders");
-        System.out.println("around at the university.");
-        System.out.println();
-        System.out.println("Possible command words are:");
-        System.out.println(parser.showCommands());
-        System.out.println();
-    }
-
-    /**
-     * Try to go in one direction. If there is an exit, enter
-     * the new room, otherwise print an error message.
-     */
-    private void goRoom(Command command) {
-        if (!command.hasSecondWord()) {
-            // if there is no second word, we don't know where to go...
-            System.out.println("Go where?");
-            return;
+        /**
+         * Print out some help information.
+         * Here we print some stupid, cryptic message and a list of the
+         * command words.
+         */
+        private void printHelp () {
+            System.out.println("Player " + player.getName() + " is lost and alone, and wanders");
+            System.out.println("around at the university.");
+            System.out.println();
+            System.out.println("Possible command words are:");
+            System.out.println(parser.showCommands());
+            System.out.println();
         }
 
-        String direction = command.getSecondWord();
+        /**
+         * Try to go in one direction. If there is an exit, enter
+         * the new room, otherwise print an error message.
+         */
+        private void goRoom (Command command){
+            if (!command.hasSecondWord()) {
+                // if there is no second word, we don't know where to go...
+                System.out.println("Go where?");
+                return;
+            }
 
-        // Try to leave current room.
-        if (!player.go(direction)) {
-            System.out.println("There is no door!");
-        } else {
-            printLocationInfo();
-            for(Character character:spawnList ){
-                if(character.getMovable()){
-                    String exit=character.getCurrentRoom().getRandomExit();
-                    character.go(exit);
+            String direction = command.getSecondWord();
+
+            // Try to leave current room.
+            if (!player.go(direction)) {
+                System.out.println("There is no door!");
+            } else {
+                printLocationInfo();
+                for (Character character : spawnList) {
+                    if (character.getMovable()) {
+                        String exit = character.getCurrentRoom().getRandomExit();
+                        character.go(exit);
+                    }
                 }
             }
         }
-    }
 
-    private void takeItem(Command command) {
-        if (!command.hasSecondWord()) {
-            // if there is no second word, we don't know where to go...
-            System.out.println("Take what?");
-        } else {
-            if (player.take(command.getSecondWord()));
-                System.out.println(player.getInfo());
-            }
-        }
-
-    private void dropItem(Command command){
-        if (!command.hasSecondWord()) {
-            // if there is no second word, we don't know where to go...
-            System.out.println("Drop what?");
-        } else {
-            if(player.drop(command.getSecondWord())) {
-                System.out.println(player.getInfo());
+        private void takeItem (Command command){
+            if (!command.hasSecondWord()) {
+                // if there is no second word, we don't know where to go...
+                System.out.println("Take what?");
             } else {
-                System.out.println("My bag does not contain " + command.getSecondWord());
+                if (player.take(command.getSecondWord())) ;
+                System.out.println(player.getInfo());
             }
         }
-    }
 
-    /**
-     * "Quit" was entered. Check the rest of the command to see
-     * whether we really quit the game.
-     *
-     * @return true, if this command quits the game, false otherwise.
-     */
-    private boolean quit(Command command) {
-        if (command.hasSecondWord()) {
-            System.out.println("Quit what?");
-            return false;
-        } else {
-            return true;  // signal that we want to quit
-        }
-    }
-    private void printInfo(){
-        System.out.println(player.getCurrentRoom().getLongDescription());
-        System.out.println();
-    }
-
-    private void printLocationInfo() {
-        System.out.println(player.getInfo());
-        System.out.println();
-    }
-
-    private void eat() {
-        System.out.println("I have eaten and I am not hungry anymore");
-        System.out.println();
-    }
-
-    private void checkNPC(){
-
-            for (Character character: spawnList){
-            if(character.getCurrentRoom()==player.getCurrentRoom()){
-                charsInRoom.add(character);
-            }
-        }
-    }
-
-    private void fightSequence(Character character){
-        HashMap<Character, Integer> fight = new HashMap<>();
-        fight.put(player, player.getHealth());
-        fight.put(character, character.getHealth());
-        while (player.getHealth()>0 || character.getHealth()>0){
-            for(Character character1:fight.keySet()){
-                if(character1.equals(player)){
-                    Random attackRoll=new Random();
-                    int i= attackRoll.nextInt(20)+1+ player.getToHit();
-                    if(i>=character.getArmourClass()){
-                        Random damage= new Random();
-                        int j=damage.nextInt(player.getDamageCode());
-                        character.setHealth(character.getHealth()-j);
-                        System.out.println("You hit and do " + j + " damage.");
-                    } else {
-                        System.out.println("You miss and do no damage");
-                    }
+        private void dropItem (Command command){
+            if (!command.hasSecondWord()) {
+                // if there is no second word, we don't know where to go...
+                System.out.println("Drop what?");
+            } else {
+                if (player.drop(command.getSecondWord())) {
+                    System.out.println(player.getInfo());
                 } else {
-                    Random attackRoll=new Random();
-                    int i= attackRoll.nextInt(20)+1+ character1.getToHit();
-                    if(i>= player.getArmourClass()){
-                        Random damage= new Random();
-                        int j=damage.nextInt(character1.getDamageCode());
-                        player.setHealth(player.getHealth()-j);
-                        System.out.println(character1.getName()+" hits and does " + j + " damage.");
-
-                    }
+                    System.out.println("My bag does not contain " + command.getSecondWord());
                 }
             }
         }
-            if(player.getHealth()>0){
-                System.out.println("You are victorious");
+
+        /**
+         * "Quit" was entered. Check the rest of the command to see
+         * whether we really quit the game.
+         *
+         * @return true, if this command quits the game, false otherwise.
+         */
+        private boolean quit (Command command){
+            if (command.hasSecondWord()) {
+                System.out.println("Quit what?");
+                return false;
             } else {
-                System.out.println("You lose the game");
+                return true;  // signal that we want to quit
+            }
+        }
+        private void printInfo () {
+            System.out.println(player.getCurrentRoom().getLongDescription());
+            System.out.println();
+        }
+
+        private void printLocationInfo () {
+            System.out.println(player.getInfo());
+            System.out.println();
+        }
+
+        private void eat () {
+            System.out.println("I have eaten and I am not hungry anymore");
+            System.out.println();
+        }
+
+        private void checkNPC() {
+            int i = 1;
+            for (Character character : spawnList) {
+                if (character.getCurrentRoom() == player.getCurrentRoom()) {
+                    charsInRoom.put(i, character);
+                    i++;
+                }
             }
         }
 
+        private void fight(){
+            boolean playerAlive=true;
+            boolean monsterAlive=true;
+            while(playerAlive && monsterAlive){
+                Combat combat= parser.getCombat();
 
+            }
 
-    public static void main(String[] args) {
-        Game game = new Game();
-        game.play();
+        }
+
+        public static void main (String[]args){
+            Game game = new Game();
+            game.play();
+        }
     }
-}
+
