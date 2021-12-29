@@ -138,12 +138,17 @@ public class Game {
         // execute them until the game is over.
 
         boolean finished = false;
-        while (!finished) {
-            Command command = parser.getCommand();
-            finished = processCommand(command);
-        }
-        System.out.println("Thank you for playing.  Good bye.");
+        while (!finished && charsInRoom.size() == 0) {
+                Command command = parser.getCommand();
+                finished = processCommand(command);
     }
+        while (!finished && charsInRoom.size()>0){
+                Command command= parser.getCommand();
+                finished= processCommand(command);
+                finished=false;
+        }
+    System.out.println("Thank you for playing.  Good bye.");
+        }
 
     /**
      * Print out the opening message for the player.
@@ -192,14 +197,44 @@ public class Game {
             case QUIT:
                 wantToQuit = true;
                 break;
+            case RUN:
+                player.go(player.getCurrentRoom().getRandomExit());
+                wantToQuit=true;
+                break;
+            case INFO:
+                printCombatInfo();
+                break;
+            case DRINK:
+                player.drink();
+                break;
+            case ATTACK:
+                Character monster= charsInRoom.get(1);
+                int playerAttack= player.attack();
+                int monsterAttack= monster.attack();
+                if(playerAttack>=monster.getArmourClass()){
+                    int damage= player.damage();
+                    System.out.println("You hit and do " + damage + " damage!");
+                    monster.setHealth(monster.getHealth()- damage);
+                } else {
+                    System.out.println("Too bad, you miss.");
+                }
+                if(monster.alive()){
+                    if(monsterAttack>=player.getArmourClass()){
+                        int damage= monster.damage();
+                        System.out.println("The "+ monster.getName() + " hits you and deals "+ damage + " damage!");
+                        player.setHealth(player.getHealth()-damage);
+                    } else {
+                        System.out.println("The " + monster.getName() + "misses.");
+                    }
+
+                } else {
+                    wantToQuit=true;
+                    System.out.println("You are victorious over " + monster.getName() + ".");
+                }
             default:
                 System.out.println("I don't know what you mean");
         }
         checkNPC();
-        while (charsInRoom.size() > 0) {
-            Combat combat=parser.getCombat();
-            fight(combat);
-        }
         return wantToQuit;
     }
 
@@ -308,59 +343,7 @@ public class Game {
             }
         }
 
-        private void fight(Combat combat){
-            boolean combatActive=true;
-            while(combatActive){
-                if (processCombat(combat)) combatActive = true;
-                else combatActive = false;
-            }
-        }
 
-        private boolean processCombat(Combat combat){
-            boolean combatActive=true;
-            CombatWord combatWord=combat.getCombatWord();
-            switch(combatWord){
-                case UNKNOWN:
-                    System.out.println("I don't know what you mean, try info");
-                    break;
-                case RUN:
-                    player.go(player.getCurrentRoom().getRandomExit());
-                    combatActive=false;
-                    break;
-                case INFO:
-                    printCombatInfo();
-                    break;
-                case DRINK:
-                    player.drink();
-                    break;
-                case ATTACK:
-                    Character monster= charsInRoom.get(1);
-                    int playerAttack= player.attack();
-                    int monsterAttack= monster.attack();
-                    if(playerAttack>=monster.getArmourClass()){
-                        int damage= player.damage();
-                        System.out.println("You hit and do " + damage + " damage!");
-                        monster.setHealth(monster.getHealth()- damage);
-                        } else {
-                        System.out.println("Too bad, you miss.");
-                    }
-                    if(monster.alive()){
-                        if(monsterAttack>=player.getArmourClass()){
-                            int damage= monster.damage();
-                            System.out.println("The "+ monster.getName() + " hits you and deals "+ damage + " damage!");
-                            player.setHealth(player.getHealth()-damage);
-                        } else {
-                            System.out.println("The " + monster.getName() + "misses.");
-                        }
-
-                    } else {
-                        combatActive=false;
-                        System.out.println("You are victorious over " + monster.getName() + ".");
-                    }
-                default:
-                    System.out.println("out of cheese error");
-            } return combatActive;
-        }
 
     private void printCombatInfo() {
     }
