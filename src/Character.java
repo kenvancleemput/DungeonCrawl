@@ -71,8 +71,7 @@ abstract public class Character {
     }
 
     public String getInfo() {
-        String info = "My name is " + name;
-        info += " and I am " + currentRoom.getLongDescription();
+        String info =  currentRoom.getLongDescription();
         if (!inventory.isEmpty()) {
             info += "\n" + inventory();
         }
@@ -165,5 +164,9 @@ abstract public class Character {
 
     public void drink() {
     }
+
+    public void setHands(Item hands){}
+
+    public void setBody(Item body){}
 
 }

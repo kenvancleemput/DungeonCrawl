@@ -8,10 +8,14 @@ import java.util.Iterator;
  */
 public class Player extends Character {
     private double maxWeightInBag;
+    private Item hands;
+    private Item body;
 
     public Player(String name, int health, int armourClass, int toHit, int damageCode, boolean movable) {
         super(name, health, armourClass, toHit, damageCode, movable);
         maxWeightInBag = 25;
+        hands=null;
+        body=null;
     }
 
     @Override
@@ -32,6 +36,23 @@ public class Player extends Character {
         return maxWeightInBag;
     }
 
-   }
+    public Item getHands() {
+        return hands;
+    }
+
+    public void setHands(Item hands) {
+        this.hands = hands;
+        setToHit(getToHit()+hands.getAttackBonus());
+    }
+
+    public Item getBody() {
+        return body;
+    }
+
+    public void setBody(Item body) {
+        this.body = body;
+        setArmourClass(getArmourClass()+ body.getDefenseBonus());
+    }
+}
 
 

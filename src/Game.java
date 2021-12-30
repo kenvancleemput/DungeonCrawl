@@ -21,9 +21,8 @@ public class Game {
     private Parser parser;
     private Character player;
     private HashMap<Integer, Room> collection;
-    private Character NPC;
-    private ArrayList<Character> spawnList;
-    private HashMap<Integer, Character> charsInRoom;
+    private NPC NPC;
+    private ArrayList<NPC> spawnList;
     private boolean inCombat;
 
     /**
@@ -32,28 +31,23 @@ public class Game {
     public Game() {
         player = new Player("Albrecht", 100, 10, 5, 20, true);
         collection = new HashMap<>();
-        spawnList = new ArrayList<Character>();
-        charsInRoom = new HashMap<>();
+        spawnList = new ArrayList<>();
         createRooms();
         parser = new Parser();
         inCombat=false;
         NPC=null;
-
-
     }
 
     /**
      * Create all the rooms and link their exits together.
      */
     private void createRooms() {
-        Room entrance, theater, pub, lab, office, cellar, armoury, deathroom1, deathroom2;
-        Item mace, spear, elvenchainmail, healingpotion, sword, shield;
-        Character rat, goblin, orc, trader, boss;
+        Room entrance, theater, pub, lab, office, cellar, armoury;
+        Item mace, spear, elvenchainmail, healingpotion, sword, knife;
+        NPC rat, goblin, orc, trader, boss;
 
 
         // create the rooms
-        deathroom1 = new Room("where all dead monsters go");
-        deathroom2 = new Room("second death room");
         entrance = new Room("While your eyes are adjusting to the flickering torchlight of the single torch which lights the hallway at the end of the stairs, you can't help but notice the brown smears on the floor, leading to the room east of you.\nFrom the room to the west, there's an unpleasant odour wafting your way.\nTo the north of you, a steel door stands closed, uninviting and with scratch marks all over it.\nWhich way will you go?");
         theater = new Room("in a lecture theater");
         pub = new Room("in the campus pub");
@@ -81,17 +75,14 @@ public class Game {
         lab.setExit("north", entrance);
         lab.setExit("east", office);
         office.setExit("west", lab);
-        deathroom1.setExit("up", deathroom2);
-        deathroom2.setExit("down", deathroom1);
-
 
         //Create items
-        mace = new Item("A sturdy mace", 5, "mace", true, true, false);
-        spear = new Item("A spear made from bone", 4.5, "shield", true, true, false);
-        elvenchainmail = new Item("An elven chain mail ", 0.3, "elven chain mail", true, true, false);
-        healingpotion = new Item("a healing potion", 5.5, "healing potion", true, false, true);
-        sword = new Item("a foam sword", 0.7, "sword", true, true, false);
-        shield = new Item("a shield made of cardboard", 0.2, "shield", true, true, false);
+        mace = new Item("A sturdy mace", 5, "mace", true, true, false,2,0);
+        spear = new Item("A spear made from bone", 4.5, "spear", true, true, false,3,0);
+        elvenchainmail = new Item("An elven chain mail ", 0.3, "elven chain mail", true, true, false,0,2);
+        healingpotion = new Item("a healing potion", 5.5, "healing potion", true, false, true,0,0);
+        sword = new Item("a foam sword", 0.7, "sword", true, true, false,4,0);
+        knife = new Item("a rusty knife", 0.2, "knife", true, true, false,1,0);
 
         // add items to collections per room
 
@@ -101,7 +92,7 @@ public class Game {
             collection.get(i).addItem(elvenchainmail);
             collection.get(i).addItem(healingpotion);
             collection.get(i).addItem(sword);
-            collection.get(i).addItem(shield);
+            collection.get(i).addItem(knife);
             collection.get(i).getRandomItems();
         }
 
@@ -110,26 +101,25 @@ public class Game {
         goblin = new NPC("Goblin", 10, 12, 2, 5, true, false, "A small green humanoid");
         orc = new NPC("Orc", 15, 14, 3, 6, true, false, "A towering green giant");
         trader = new NPC("Khajit", 200, 20, 10, 10, false, true, "A friendly gnome selling some wares");
-        boss = new NPC("The Skeleton King", 30, 18, 6, 8, false, false, "A skeleton with a shining crown and a familiar sword");
+        boss = new NPC("Skeleton King", 30, 18, 6, 8, false, false, "A skeleton with a shining crown and a familiar sword");
 
         // add NPC's to spawnList
-        Collections.addAll(spawnList, rat, goblin, orc, trader, boss);
+        Collections.addAll(spawnList, rat, goblin, orc, trader);
 
         //set rooms for NPC's
+        boss.setCurrentRoom(cellar);
         for (Character character : spawnList) {
-            if (character.getName().equals("The Skeleton King")) {
-                boss.setCurrentRoom(cellar);
-            } else {
-                Random r = new Random();
-                int i = r.nextInt(collection.size());
-                if (i == 0) {
+            Random r = new Random();
+            int i = r.nextInt(collection.size());
+            if (i == 0) {
                     character.setCurrentRoom(collection.get(i + 1));
                 }
                 character.setCurrentRoom(collection.get(i));
             }
-        }
+
         // start game outside
         player.setCurrentRoom(entrance);
+        player.setHands(knife);
 
 
     }
@@ -151,7 +141,7 @@ public class Game {
                 Command command = parser.getCommand();
                 finished = processCommand(command);
                 if(inCombat){
-                    printCombatInfo();
+                    NPC.getDescription();
                 }
     }
         while (inCombat && player.alive()){
@@ -361,11 +351,10 @@ public class Game {
 
         private void checkNPC() {
             if(NPC==null)
-            for (Character character : spawnList) {
-                if (character.getCurrentRoom() == player.getCurrentRoom() && !character.getFriendly() && character.alive()) {
-                    NPC=character;
+            for (NPC npc : spawnList) {
+                if (npc.getCurrentRoom() == player.getCurrentRoom() && !npc.getFriendly() && npc.alive()) {
+                    NPC=npc;
                     inCombat=true;
-
                 }
             }
         }
@@ -378,10 +367,10 @@ public class Game {
         } else {
             if (playerAttack >= NPC.getArmourClass()) {
                 int damage = player.damage();
-                System.out.println("You hit and do " + damage + " damage!");
+                System.out.println("You attack, rolling " + playerAttack+ ",hit and do " + damage + " damage!");
                 NPC.setHealth(NPC.getHealth() - damage);
             } else {
-                System.out.println("Too bad, you miss.");
+                System.out.println("You attack, rolling " + playerAttack + " but miss");
             }
             if (NPC.alive()) {
                 if (monsterAttack >= player.getArmourClass()) {
