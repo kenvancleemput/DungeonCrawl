@@ -19,23 +19,25 @@ import java.util.*;
 
 public class Game {
     private Parser parser;
-    private Room currentRoom;
     private Character player;
     private HashMap<Integer, Room> collection;
     private Character NPC;
     private ArrayList<Character> spawnList;
     private HashMap<Integer, Character> charsInRoom;
+    private boolean inCombat;
 
     /**
      * Create the game and initialise its internal map.
      */
     public Game() {
-        player = new Player("Albrecht", 10, 10, 2, 4, true);
+        player = new Player("Albrecht", 100, 10, 5, 20, true);
         collection = new HashMap<>();
         spawnList = new ArrayList<Character>();
         charsInRoom = new HashMap<>();
         createRooms();
         parser = new Parser();
+        inCombat=false;
+        NPC=null;
 
 
     }
@@ -44,13 +46,14 @@ public class Game {
      * Create all the rooms and link their exits together.
      */
     private void createRooms() {
-        Room entrance, theater, pub, lab, office, cellar, armoury, waitingroom;
+        Room entrance, theater, pub, lab, office, cellar, armoury, deathroom1, deathroom2;
         Item mace, spear, elvenchainmail, healingpotion, sword, shield;
         Character rat, goblin, orc, trader, boss;
 
 
         // create the rooms
-        waitingroom = new Room("room for all the monsters before the game starts");
+        deathroom1 = new Room("where all dead monsters go");
+        deathroom2 = new Room("second death room");
         entrance = new Room("While your eyes are adjusting to the flickering torchlight of the single torch which lights the hallway at the end of the stairs, you can't help but notice the brown smears on the floor, leading to the room east of you.\nFrom the room to the west, there's an unpleasant odour wafting your way.\nTo the north of you, a steel door stands closed, uninviting and with scratch marks all over it.\nWhich way will you go?");
         theater = new Room("in a lecture theater");
         pub = new Room("in the campus pub");
@@ -66,6 +69,7 @@ public class Game {
         collection.put(4, office);
         collection.put(5, cellar);
 
+
         // initialise room exits
         entrance.setExit("east", theater);
         entrance.setExit("south", lab);
@@ -77,6 +81,9 @@ public class Game {
         lab.setExit("north", entrance);
         lab.setExit("east", office);
         office.setExit("west", lab);
+        deathroom1.setExit("up", deathroom2);
+        deathroom2.setExit("down", deathroom1);
+
 
         //Create items
         mace = new Item("A sturdy mace", 5, "mace", true, true, false);
@@ -138,15 +145,21 @@ public class Game {
         // execute them until the game is over.
 
         boolean finished = false;
-        while (!finished && charsInRoom.size() == 0) {
+
+        while (!finished){
+            while(!inCombat && player.alive()) {
                 Command command = parser.getCommand();
                 finished = processCommand(command);
+                if(inCombat){
+                    printCombatInfo();
+                }
     }
-        while (!finished && charsInRoom.size()>0){
+        while (inCombat && player.alive()){
+
                 Command command= parser.getCommand();
                 finished= processCommand(command);
-                finished=false;
-        }
+
+        }}
     System.out.println("Thank you for playing.  Good bye.");
         }
 
@@ -172,6 +185,7 @@ public class Game {
         boolean wantToQuit = false;
 
         CommandWord commandWord = command.getCommandWord();
+        if(!inCombat){
         switch (commandWord) {
             case UNKNOWN:
                 System.out.println("I don't know what you mean...");
@@ -198,8 +212,29 @@ public class Game {
                 wantToQuit = true;
                 break;
             case RUN:
+            case INFO:
+            case DRINK:
+            case ATTACK:
+                System.out.println(isInCombat());
+                break;
+            default:
+                System.out.println("I don't know what you mean");
+        }} else {
+            switch (commandWord){
+            case UNKNOWN:
+            case HELP:
+            case GO:
+            case LOOK:
+            case EAT:
+            case DROP:
+            case TAKE:
+            case QUIT:
+                System.out.println(isInCombat());
+                break;
+            case RUN:
                 player.go(player.getCurrentRoom().getRandomExit());
                 wantToQuit=true;
+                printLocationInfo();
                 break;
             case INFO:
                 printCombatInfo();
@@ -208,32 +243,12 @@ public class Game {
                 player.drink();
                 break;
             case ATTACK:
-                Character monster= charsInRoom.get(1);
-                int playerAttack= player.attack();
-                int monsterAttack= monster.attack();
-                if(playerAttack>=monster.getArmourClass()){
-                    int damage= player.damage();
-                    System.out.println("You hit and do " + damage + " damage!");
-                    monster.setHealth(monster.getHealth()- damage);
-                } else {
-                    System.out.println("Too bad, you miss.");
-                }
-                if(monster.alive()){
-                    if(monsterAttack>=player.getArmourClass()){
-                        int damage= monster.damage();
-                        System.out.println("The "+ monster.getName() + " hits you and deals "+ damage + " damage!");
-                        player.setHealth(player.getHealth()-damage);
-                    } else {
-                        System.out.println("The " + monster.getName() + "misses.");
-                    }
-
-                } else {
-                    wantToQuit=true;
-                    System.out.println("You are victorious over " + monster.getName() + ".");
-                }
+                fight();
+                break;
             default:
                 System.out.println("I don't know what you mean");
-        }
+
+        }}
         checkNPC();
         return wantToQuit;
     }
@@ -304,7 +319,18 @@ public class Game {
             }
         }
 
-        /**
+    public String isInCombat() {
+        String message = "";
+        if (inCombat = true) {
+            message += "You are in combat, exploration is forbidden";
+        } else {
+            message += "You are not in combat, combat actions are forbidden";
+        }
+        return message;
+    }
+
+
+    /**
          * "Quit" was entered. Check the rest of the command to see
          * whether we really quit the game.
          *
@@ -334,18 +360,50 @@ public class Game {
         }
 
         private void checkNPC() {
-            int i = 1;
+            if(NPC==null)
             for (Character character : spawnList) {
-                if (character.getCurrentRoom() == player.getCurrentRoom()) {
-                    charsInRoom.put(i, character);
-                    i++;
+                if (character.getCurrentRoom() == player.getCurrentRoom() && !character.getFriendly() && character.alive()) {
+                    NPC=character;
+                    inCombat=true;
+
                 }
             }
         }
+    private boolean fight() {
+        int playerAttack = player.attack();
+        int monsterAttack = NPC.attack();
+        Room heaven= new Room("bla");
+        if (!player.alive()) {
+            System.out.println("You are dead");
+        } else {
+            if (playerAttack >= NPC.getArmourClass()) {
+                int damage = player.damage();
+                System.out.println("You hit and do " + damage + " damage!");
+                NPC.setHealth(NPC.getHealth() - damage);
+            } else {
+                System.out.println("Too bad, you miss.");
+            }
+            if (NPC.alive()) {
+                if (monsterAttack >= player.getArmourClass()) {
+                    int damage = NPC.damage();
+                    System.out.println("The " + NPC.getName() + " hits you and deals " + damage + " damage!");
+                    player.setHealth(player.getHealth() - damage);
+                } else {
+                    System.out.println("The " + NPC.getName() + " misses.");
+                }
 
+            } else {
+                spawnList.remove(NPC);
+                NPC.setCurrentRoom(heaven);
+                inCombat=false;
+                System.out.println("You are victorious over " + NPC.getName() + ".");
+            }
+        } return inCombat;
+    }
 
 
     private void printCombatInfo() {
+        System.out.println("There's a " + NPC.getName() + " standing in front of you. Prepare for combat");
     }
 
     public static void main (String[]args){

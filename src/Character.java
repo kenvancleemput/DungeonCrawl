@@ -165,4 +165,5 @@ abstract public class Character {
 
     public void drink() {
     }
+
 }
