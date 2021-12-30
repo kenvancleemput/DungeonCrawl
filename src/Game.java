@@ -33,6 +33,7 @@ public class Game {
         collection = new HashMap<>();
         spawnList = new ArrayList<>();
         createRooms();
+        roamNPC();
         parser = new Parser();
         inCombat=false;
         NPC=null;
@@ -104,18 +105,7 @@ public class Game {
         boss = new NPC("Skeleton King", 30, 18, 6, 8, false, false, "A skeleton with a shining crown and a familiar sword");
 
         // add NPC's to spawnList
-        Collections.addAll(spawnList, rat, goblin, orc, trader);
-
-        //set rooms for NPC's
-        boss.setCurrentRoom(cellar);
-        for (Character character : spawnList) {
-            Random r = new Random();
-            int i = r.nextInt(collection.size());
-            if (i == 0) {
-                    character.setCurrentRoom(collection.get(i + 1));
-                }
-                character.setCurrentRoom(collection.get(i));
-            }
+        Collections.addAll(spawnList, rat, goblin, orc, trader,boss);
 
         // start game outside
         player.setCurrentRoom(entrance);
@@ -124,6 +114,21 @@ public class Game {
 
     }
 
+    private void roamNPC(){
+        Iterator<NPC> it = spawnList.iterator();
+        while(it.hasNext()){
+            NPC npc=it.next();
+            if(!npc.getName().contains("Skeleton King")){
+                Random r = new Random();
+                int i = r.nextInt(collection.size()-1);
+                if (i <= 0) {
+                    npc.setCurrentRoom(collection.get(1));
+                }
+                npc.setCurrentRoom(collection.get(i));
+            } else {
+                npc.setCurrentRoom(collection.get(5));
+            }}
+    }
 
     /**
      * Main play routine.  Loops until end of play.
