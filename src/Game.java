@@ -21,7 +21,7 @@ public class Game {
     private Parser parser;
     private Character player;
     private HashMap<Integer, Room> collection;
-    private NPC NPC;
+    private NPC combatant;
     private ArrayList<NPC> spawnList;
     private boolean inCombat;
 
@@ -36,46 +36,69 @@ public class Game {
         roamNPC();
         parser = new Parser();
         inCombat=false;
-        NPC=null;
+        combatant =null;
     }
 
     /**
      * Create all the rooms and link their exits together.
      */
     private void createRooms() {
-        Room entrance, theater, pub, lab, office, cellar, armoury;
+        Room entrance, torture_room, dining_room, armoury, hallway, library, descending_path, lair, next_level, dug_path;
         Item mace, spear, elvenchainmail, healingpotion, sword, knife;
         NPC rat, goblin, orc, trader, boss;
 
 
         // create the rooms
-        entrance = new Room("While your eyes are adjusting to the flickering torchlight of the single torch which lights the hallway at the end of the stairs, you can't help but notice the brown smears on the floor, leading to the room east of you.\nFrom the room to the west, there's an unpleasant odour wafting your way.\nTo the north of you, a steel door stands closed, uninviting and with scratch marks all over it.\nWhich way will you go?");
-        theater = new Room("in a lecture theater");
-        pub = new Room("in the campus pub");
-        lab = new Room("in a computing lab");
-        office = new Room("in the computing admin office");
-        cellar = new Room("In the cellar with all the provisions for the pub");
+        entrance = new Room("entrance","A single torch lights this simple hallway");
+        torture_room = new Room("torture room","This room was obviously used as a torture room. There's a skeleton chained to the wall, and the smell of death hangs heavily in the air.");
+        dining_room = new Room("dining room","There are signs of violence here, but also a shabby table with some food left over.");
+        armoury = new Room("armoury","Once, this must have been an armoury, holding the weapons and armour of whoever lived here before the monsters.");
+        hallway = new Room("hallway","This hallway still has faded banners on the walls.");
+        library = new Room("library","Old shelves line the wall here, in what was once obviously a library.");
+        descending_path = new Room("descending path","The floor slopes down, and the tiles on the floor gradually give over to the rough rock of a cave.");
+        lair = new Room("lair","As you enter the cave, your eyes are drawn to the sculpted stone throne adorning the center of the cave. Seated in it, you can see a skeletal warrior, their brow graced with an ornate golden crown. It stirs as you enter, and two blue lights flare up before the head turns towards you. In its hands, you can see your ancestral sword.");
+        next_level = new Room("stairs","Roughly made stairs greet you here, the darkness from below impenetrable to your human eyes. This must be the place where the various monsters you've encountered so far enter the complex which you've explored.");
+        dug_path = new Room("dug path","This tunnel was burrowed from beneath at some point, and from ahead you can hear the dripping of water.");
+
 
         // add rooms to collection ArrayList
         collection.put(0, entrance);
-        collection.put(1, theater);
-        collection.put(2, pub);
-        collection.put(3, lab);
-        collection.put(4, office);
-        collection.put(5, cellar);
+        collection.put(1, torture_room);
+        collection.put(2, dining_room);
+        collection.put(3, armoury);
+        collection.put(4, hallway);
+        collection.put(5, library);
+        collection.put(6, descending_path);
+        collection.put(7, lair);
+        collection.put(8, next_level);
+        collection.put(9, dug_path);
 
 
         // initialise room exits
-        entrance.setExit("east", theater);
-        entrance.setExit("south", lab);
-        entrance.setExit("west", pub);
-        theater.setExit("west", entrance);
-        pub.setExit("east", entrance);
-        pub.setExit("down", cellar);
-        cellar.setExit("up", pub);
-        lab.setExit("north", entrance);
-        lab.setExit("east", office);
-        office.setExit("west", lab);
+        entrance.setExit("east", torture_room);
+        entrance.setExit("north", dining_room);
+        entrance.setExit("west", armoury);
+        torture_room.setExit("north", dining_room);
+        torture_room.setExit("west", entrance);
+        dining_room.setExit("southwest", entrance);
+        dining_room.setExit("southeast", torture_room);
+        dining_room.setExit("east", dug_path);
+        dining_room.setExit("west", armoury);
+        armoury.setExit("northeast", dining_room);
+        armoury.setExit("southeast", entrance);
+        armoury.setExit("west", hallway);
+        hallway.setExit("east", armoury);
+        hallway.setExit("north", library);
+        library.setExit("south", hallway);
+        library.setExit("east", descending_path);
+        descending_path.setExit("west", library);
+        descending_path.setExit("east", lair);
+        lair.setExit("west", descending_path);
+        lair.setExit("north", next_level);
+        lair.setExit("south", dug_path);
+        dug_path.setExit("north", lair);
+        dug_path.setExit("west", dining_room);
+        next_level.setExit("south", lair);
 
         //Create items
         mace = new Item("A sturdy mace", 5, "mace", true, true, false,2,0);
@@ -107,6 +130,9 @@ public class Game {
         // add NPC's to spawnList
         Collections.addAll(spawnList, rat, goblin, orc, trader,boss);
 
+        //add boss to lair
+        boss.setCurrentRoom(lair);
+
         // start game outside
         player.setCurrentRoom(entrance);
         player.setHands(knife);
@@ -115,9 +141,7 @@ public class Game {
     }
 
     private void roamNPC(){
-        Iterator<NPC> it = spawnList.iterator();
-        while(it.hasNext()){
-            NPC npc=it.next();
+        for(NPC npc:spawnList){
             if(!npc.getName().contains("Skeleton King")){
                 Random r = new Random();
                 int i = r.nextInt(collection.size()-1);
@@ -125,9 +149,10 @@ public class Game {
                     npc.setCurrentRoom(collection.get(1));
                 }
                 npc.setCurrentRoom(collection.get(i));
-            } else {
-                npc.setCurrentRoom(collection.get(5));
-            }}
+
+            }
+            System.out.println(npc.getInfo());
+        }
     }
 
     /**
@@ -145,11 +170,8 @@ public class Game {
             while(!inCombat && player.alive()) {
                 Command command = parser.getCommand();
                 finished = processCommand(command);
-                if(inCombat){
-                    NPC.getDescription();
                 }
-    }
-        while (inCombat && player.alive()){
+            while (inCombat && player.alive()){
 
                 Command command= parser.getCommand();
                 finished= processCommand(command);
@@ -228,7 +250,8 @@ public class Game {
                 break;
             case RUN:
                 player.go(player.getCurrentRoom().getRandomExit());
-                wantToQuit=true;
+                wantToQuit=false;
+                inCombat=false;
                 printLocationInfo();
                 break;
             case INFO:
@@ -245,6 +268,9 @@ public class Game {
 
         }}
         checkNPC();
+        if(inCombat){
+            printCombatInfo();
+        }
         return wantToQuit;
     }
 
@@ -282,10 +308,11 @@ public class Game {
                 System.out.println("There is no door!");
             } else {
                 printLocationInfo();
-                for (Character character : spawnList) {
-                    if (character.getMovable()) {
-                        String exit = character.getCurrentRoom().getRandomExit();
-                        character.go(exit);
+                for (NPC npc : spawnList) {
+                    if (npc.getMovable()) {
+                        String exit = npc.getCurrentRoom().getRandomExit();
+                        npc.go(exit);
+                        System.out.println(npc.getLocation());
                     }
                 }
             }
@@ -355,49 +382,59 @@ public class Game {
         }
 
         private void checkNPC() {
-            if(NPC==null)
-            for (NPC npc : spawnList) {
-                if (npc.getCurrentRoom() == player.getCurrentRoom() && !npc.getFriendly() && npc.alive()) {
-                    NPC=npc;
-                    inCombat=true;
+            if (combatant == null) {
+                for (NPC npc : spawnList) {
+                    if (npc.getCurrentRoom() == player.getCurrentRoom() && !npc.getFriendly() && npc.alive()) {
+                        combatant = npc;
+                        inCombat = true;
+                    }
+                }
+            } else {
+                if (combatant.getHealth() <= 0) {
+                    for (NPC npc : spawnList) {
+                        if (npc.getCurrentRoom() == player.getCurrentRoom() && !npc.getFriendly() && npc.alive()) {
+                            combatant = npc;
+                            inCombat = true;
+                        }
+                    }
                 }
             }
         }
     private boolean fight() {
         int playerAttack = player.attack();
-        int monsterAttack = NPC.attack();
-        Room heaven= new Room("bla");
+        int monsterAttack = combatant.attack();
+        Room heaven= new Room("bla", "bla");
         if (!player.alive()) {
             System.out.println("You are dead");
         } else {
-            if (playerAttack >= NPC.getArmourClass()) {
+            if (playerAttack >= combatant.getArmourClass()) {
                 int damage = player.damage();
                 System.out.println("You attack, rolling " + playerAttack+ ",hit and do " + damage + " damage!");
-                NPC.setHealth(NPC.getHealth() - damage);
+                combatant.setHealth(combatant.getHealth() - damage);
             } else {
                 System.out.println("You attack, rolling " + playerAttack + " but miss");
             }
-            if (NPC.alive()) {
+            if (combatant.alive()) {
                 if (monsterAttack >= player.getArmourClass()) {
-                    int damage = NPC.damage();
-                    System.out.println("The " + NPC.getName() + " hits you and deals " + damage + " damage!");
+                    int damage = combatant.damage();
+                    System.out.println("The " + combatant.getName() + " hits you and deals " + damage + " damage!");
                     player.setHealth(player.getHealth() - damage);
                 } else {
-                    System.out.println("The " + NPC.getName() + " misses.");
+                    System.out.println("The " + combatant.getName() + " misses.");
                 }
 
             } else {
-                spawnList.remove(NPC);
-                NPC.setCurrentRoom(heaven);
+                spawnList.remove(combatant);
+                combatant.setCurrentRoom(heaven);
                 inCombat=false;
-                System.out.println("You are victorious over " + NPC.getName() + ".");
+                System.out.println("You are victorious over " + combatant.getName() + ".");
             }
         } return inCombat;
     }
 
 
     private void printCombatInfo() {
-        System.out.println("There's a " + NPC.getName() + " standing in front of you. Prepare for combat");
+        System.out.println("There's a " + combatant.getName() + " standing in front of you. Prepare for combat");
     }
 
     public static void main (String[]args){

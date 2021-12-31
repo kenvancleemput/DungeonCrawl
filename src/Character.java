@@ -7,6 +7,9 @@ abstract public class Character {
     private Room currentRoom;
     private int health;
     private int armourClass;
+    private int max_health;
+    private int base_attack;
+    private int base_defence;
     private int toHit;
     private int damageCode;
     private Boolean movable;
@@ -15,7 +18,10 @@ abstract public class Character {
     public Character(String name, int health, int armourClass, int toHit, int damageCode, boolean movable) {
         this.name = name;
         this.health = health;
+        max_health = health;
         this.armourClass = armourClass;
+        base_defence=armourClass;
+        base_attack=toHit;
         this.toHit = toHit;
         this.damageCode = damageCode;
         this.movable = movable;
@@ -152,7 +158,10 @@ abstract public class Character {
 
     public int damage(){
         Random damageRoll=new Random();
-        int damage= damageRoll.nextInt(damageCode-1)+1;
+        int damage= damageRoll.nextInt(damageCode)+1;
+        if(damage>damageCode){
+            damage = damage-1;
+        }
         return damage;
     }
 

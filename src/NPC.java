@@ -22,4 +22,9 @@ public class NPC extends Character{
     public boolean getFriendly() {
         return isFriendly;
     }
+
+    public String getLocation(){
+        String loc = getName() + " is in " + getCurrentRoom().getName();
+        return loc;
+    }
 }

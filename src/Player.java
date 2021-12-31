@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 /**
@@ -10,6 +11,9 @@ public class Player extends Character {
     private double maxWeightInBag;
     private Item hands;
     private Item body;
+    private int level;
+    private int monsters_defeated;
+    private HashMap<Integer, Integer> level_chart;
 
     public Player(String name, int health, int armourClass, int toHit, int damageCode, boolean movable) {
         super(name, health, armourClass, toHit, damageCode, movable);
