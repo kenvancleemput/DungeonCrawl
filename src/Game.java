@@ -101,15 +101,15 @@ public class Game {
         next_level.setExit("south", lair);
 
         //Create items
-        knife = new Item("A sharp knife", 0.45, "knife", false, true, false,1,0,1,0);
-        spear = new Item("A spear with an ornate head", 1.36, "spear", false, true, false,2,1,2,0);
-        axe = new Item("A sturdy axe ", 1.81, "axe", false, true, false,3,0,3,0);
-        mace = new Item("A mace", 1.81, "mace", false, true, false,4,0,4,0);
-        sword = new Item("your family sword", 1.36, "sword", false, true, false,5,1,5,0);
-        leather_vest = new Item("leather armour", 4.53, "leather", false, true, false,0,2,0,0);
-        chainmail= new Item("A chain shirt",9.06,"chain",false,true,false,0,4,0,0);
-        breastplate= new Item("A sturdy plate",18.12,"breastplate",false,true,false,0,6,0,0);
-        healthpotion= new Item("A magical drink replenishing all your health",0.2,"healthpotion",false,false,true,0,0,0,0);
+        knife = new Weapon("A sharp knife", 0.45, "knife", true, false, 1,0,1);
+        spear = new Weapon("A spear with an ornate head", 1.36, "spear", true, false, 2,1,2);
+        axe = new Weapon("A sturdy axe ", 1.81, "axe", true, false, 3,0,3);
+        mace = new Weapon("A mace", 1.81, "mace", true, false, 4,0,4);
+        sword = new Weapon("your family sword", 1.36, "sword", true, false, 5,1,5);
+        leather_vest = new Armour("leather armour", 4.53, "leather", true, false, 0,2,0);
+        chainmail= new Armour("A chain shirt",9.06,"chain",true,false,0,4,0);
+        breastplate= new Armour("A sturdy plate",18.12,"breastplate",true,false,0,6,0);
+        healthpotion= new Consumable("A magical drink replenishing all your health",0.2,"healthpotion",false,true,0,0,0);
         apple = new Food("a green apple",0.05,"apple",true,false,false,0,0,0,2);
         cake = new Food("a delicious cake",0.1,"cake",true,false,false,0,0,0,4);
         steak = new Food("A juicy steak",0.2,"steak",true,false,false,0,0,0,6);
@@ -239,6 +239,8 @@ public class Game {
             case TAKE:
                 takeItem(command);
                 break;
+            case EQUIP:
+                equip(command);
             case QUIT:
                 wantToQuit = true;
                 break;
@@ -458,6 +460,23 @@ public class Game {
 
     private void printCombatInfo() {
         System.out.println("There's a " + combatant.getName() + " standing in front of you. Prepare for combat");
+    }
+
+    private void equip(Command command){
+            if(!command.hasSecondWord()){
+                System.out.println("Equip what?");
+            } else {
+                if(player.inventory().contains(command.getSecondWord()) && player.bagGetItem(command.getSecondWord()).isEquippable()){
+                    Item equip= player.bagGetItem(command.getSecondWord());
+                    if(player.bagGetItem(command.getSecondWord()) instanceof Weapon){
+                        player.setHands(equip);
+                    } else player.setBody(equip);
+                    System.out.println("You equip the "+ equip);
+                } else {
+                    System.out.println("You can't equip that");
+                }
+
+            }
     }
 
     public static void main (String[]args){

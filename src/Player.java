@@ -47,11 +47,14 @@ public class Player extends Character {
         return hands;
     }
 
-    public void setHands(Item hands) {
+    public Item setHands(Item hands) {
+        unequipHands();
         this.hands = hands;
-        setToHit(getBase_attack()+hands.getAttackBonus());
-        setDamageCode(getBase_damage()+hands.getDamageBonus());
-        setArmourClass(getArmourClass()+hands.getDefenseBonus());
+        inventory.remove(hands);
+        setToHit(getBase_attack()+hands.getAttackBonus()+level);
+        setDamageCode(getBase_damage()+hands.getDamageBonus()+level);
+        setArmourClass(getArmourClass()+hands.getDefenseBonus()+level);
+        return hands;
     }
 
     public Item getBody() {
@@ -59,9 +62,12 @@ public class Player extends Character {
     }
 
 
-    public void setBody(Item body) {
+    public Item setBody(Item body) {
+        unequipBody();
         this.body = body;
+        inventory.remove(body);
         setArmourClass(getBase_defence()+ body.getDefenseBonus());
+        return body;
     }
 
     public void setLevel_chart(){
@@ -84,8 +90,19 @@ public class Player extends Character {
         }
     }
 
+    private void unequipHands(){
+        if(!(hands==null)){
+            inventory.add(hands);
+            hands=null;
+        }
+    }
 
-
+    private void unequipBody(){
+        if(!(body==null)){
+            inventory.add(body);
+            body=null;
+        }
+    }
 }
 
 

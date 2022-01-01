@@ -63,4 +63,12 @@ public class Item {
     public int getHealingValue() {
         return 0;
     }
+
+    public boolean isEquippable() {
+        return isEquippable;
+    }
+
+    public boolean isConsumable() {
+        return isConsumable;
+    }
 }

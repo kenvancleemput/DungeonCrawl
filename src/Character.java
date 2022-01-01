@@ -14,7 +14,7 @@ abstract public class Character {
     private int damageCode;
     private int base_damage;
     private Boolean movable;
-    private ArrayList<Item> inventory;
+    protected ArrayList<Item> inventory;
 
     public Character(String name, int health, int armourClass, int toHit, int damageCode, boolean movable) {
         this.name = name;
@@ -210,11 +210,9 @@ abstract public class Character {
     public void drink() {
     }
 
-    public void setHands(Item hands) {
-    }
+    public Item setHands(Item hands) { return null;}
 
-    public void setBody(Item body) {
-    }
+    public Item setBody(Item body) {return null;}
 
     public boolean eat(String name) {
         Iterator<Item> it = inventory.iterator();
