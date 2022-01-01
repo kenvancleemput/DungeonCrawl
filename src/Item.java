@@ -7,21 +7,23 @@ public class Item {
     private String description;
     private String name;
     private double weight;
-    private boolean isMovable;
     private boolean isEquippable;
     private boolean isConsumable;
     private int attackBonus;
     private int defenseBonus;
+    private int damageBonus;
 
-    public Item(String description, double weight, String name, Boolean isMovable, boolean isEquippable, boolean isConsumable, int attackBonus, int defenseBonus) {
+
+    public Item(String description, double weight, String name, boolean isEquippable, boolean isConsumable, int attackBonus, int defenseBonus, int damageBonus) {
         this.description = description;
         this.weight = weight;
         this.name = name;
-        this.isMovable = isMovable;
         this.isEquippable= isEquippable;
         this.isConsumable = isConsumable;
         this.attackBonus=attackBonus;
         this.defenseBonus=defenseBonus;
+        this.damageBonus=damageBonus;
+
     }
     public int getAttackBonus() {
         return attackBonus;
@@ -43,12 +45,22 @@ public class Item {
         return name;
     }
 
-    public boolean isMovable() {
-        return isMovable;
-    }
+    public boolean isEdible() {
+        return false;}
 
         public String toString(){
         return this.name + " ("+ this.description + ") with a weight of " + this.weight + "kg.";
     }
 
+    public int getDamageBonus() {
+        return damageBonus;
+    }
+
+    public void setDamageBonus(int damageBonus) {
+        this.damageBonus = damageBonus;
+    }
+
+    public int getHealingValue() {
+        return 0;
+    }
 }

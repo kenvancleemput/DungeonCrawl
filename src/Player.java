@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+
 
 /**
  * This is the player in the "Dungeon Crawl" application.
@@ -20,6 +20,9 @@ public class Player extends Character {
         maxWeightInBag = 25;
         hands=null;
         body=null;
+        monsters_defeated=0;
+        level_chart=new HashMap<>();
+        setLevel_chart();
     }
 
     @Override
@@ -46,17 +49,43 @@ public class Player extends Character {
 
     public void setHands(Item hands) {
         this.hands = hands;
-        setToHit(getToHit()+hands.getAttackBonus());
+        setToHit(getBase_attack()+hands.getAttackBonus());
+        setDamageCode(getBase_damage()+hands.getDamageBonus());
+        setArmourClass(getArmourClass()+hands.getDefenseBonus());
     }
 
     public Item getBody() {
         return body;
     }
 
+
     public void setBody(Item body) {
         this.body = body;
-        setArmourClass(getArmourClass()+ body.getDefenseBonus());
+        setArmourClass(getBase_defence()+ body.getDefenseBonus());
     }
+
+    public void setLevel_chart(){
+        level_chart.put(3,2);
+        level_chart.put(6,3);
+        level_chart.put(10,4);
+        level_chart.put(15,5);
+    }
+
+    public void increaseMonsters_Defeated(){
+        monsters_defeated++;
+    }
+
+    public void increaseLevel(){
+        for (int i:level_chart.keySet()){
+            if(monsters_defeated == i){
+                level=level_chart.get(i);
+
+            }
+        }
+    }
+
+
+
 }
 
 

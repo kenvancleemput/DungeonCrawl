@@ -105,8 +105,8 @@ public class Room
 
     public void getRandomItems(){
         Random r = new Random();
-        int i=r.nextInt(4);
-        for(int j=0;j<i;j++){
+        int i=r.nextInt(5);
+        if(i>2){
             Item random =collection.get(r.nextInt(collection.size()));
             items.add(random);
         }

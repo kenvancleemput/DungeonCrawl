@@ -12,6 +12,7 @@ abstract public class Character {
     private int base_defence;
     private int toHit;
     private int damageCode;
+    private int base_damage;
     private Boolean movable;
     private ArrayList<Item> inventory;
 
@@ -20,13 +21,14 @@ abstract public class Character {
         this.health = health;
         max_health = health;
         this.armourClass = armourClass;
-        base_defence=armourClass;
-        base_attack=toHit;
+        base_defence = armourClass;
+        base_attack = toHit;
         this.toHit = toHit;
         this.damageCode = damageCode;
+        base_damage = damageCode;
         this.movable = movable;
         inventory = new ArrayList<>();
-       }
+    }
 
     public String getName() {
         return name;
@@ -72,12 +74,44 @@ abstract public class Character {
         return damageCode;
     }
 
+    public int getBase_damage() {
+        return base_damage;
+    }
+
+    public int getMax_health() {
+        return max_health;
+    }
+
+    public void setMax_health(int max_health) {
+        this.max_health = max_health;
+    }
+
+    public int getBase_attack() {
+        return base_attack;
+    }
+
+    public void setBase_attack(int base_attack) {
+        this.base_attack = base_attack;
+    }
+
+    public int getBase_defence() {
+        return base_defence;
+    }
+
+    public void setBase_defence(int base_defence) {
+        this.base_defence = base_defence;
+    }
+
+    public void setBase_damage(int base_damage) {
+        this.base_damage = base_damage;
+    }
+
     public void setDamageCode(int damageCode) {
         this.damageCode = damageCode;
     }
 
     public String getInfo() {
-        String info =  currentRoom.getLongDescription();
+        String info = currentRoom.getLongDescription();
         if (!inventory.isEmpty()) {
             info += "\n" + inventory();
         }
@@ -115,11 +149,11 @@ abstract public class Character {
     public Boolean take(String name) {
         if (currentRoom.hasItem(name)) {
             Item item = currentRoom.getItem(name);
-            if (item.isMovable())
-                inventory.add(item);
+            inventory.add(item);
             currentRoom.removeItem(item);
             return true;
-        } return false;
+        }
+        return false;
     }
 
     public Boolean drop(String itemName) {
@@ -131,7 +165,8 @@ abstract public class Character {
                 currentRoom.addItem(item);
                 return true;
             }
-        } return false;
+        }
+        return false;
     }
 
     public void addItem(Item item) {
@@ -149,33 +184,61 @@ abstract public class Character {
 
     abstract public boolean getFriendly();
 
-    public int attack(){
-        Random attackRoll=new Random();
-        int i= attackRoll.nextInt(19)+1;
-        int toHit=i+getToHit();
+    public int attack() {
+        Random attackRoll = new Random();
+        int i = attackRoll.nextInt(19) + 1;
+        int toHit = i + getToHit();
         return toHit;
     }
 
-    public int damage(){
-        Random damageRoll=new Random();
-        int damage= damageRoll.nextInt(damageCode)+1;
-        if(damage>damageCode){
-            damage = damage-1;
+    public int damage() {
+        Random damageRoll = new Random();
+        int damage = damageRoll.nextInt(damageCode) + 1;
+        if (damage > damageCode) {
+            damage = damage - 1;
         }
         return damage;
     }
 
-    public boolean alive(){
-        if(health<=0){
+    public boolean alive() {
+        if (health <= 0) {
             return false;
-        } return true;
+        }
+        return true;
     }
 
     public void drink() {
     }
 
-    public void setHands(Item hands){}
+    public void setHands(Item hands) {
+    }
 
-    public void setBody(Item body){}
+    public void setBody(Item body) {
+    }
+
+    public boolean eat(String name) {
+        Iterator<Item> it = inventory.iterator();
+        while (it.hasNext()) {
+            Item food = it.next();
+            if (food.isEdible()) {
+                inventory.remove(food);
+                if (health + food.getHealingValue() <= max_health) {
+                    health += food.getHealingValue();
+                } else {
+                    health = max_health;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void increaseMonsters_Defeated() {
+    }
+
+    ;
+
+    public void increaseLevel() {
+    }
 
 }

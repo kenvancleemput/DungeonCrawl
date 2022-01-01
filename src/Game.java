@@ -44,7 +44,7 @@ public class Game {
      */
     private void createRooms() {
         Room entrance, torture_room, dining_room, armoury, hallway, library, descending_path, lair, next_level, dug_path;
-        Item mace, spear, elvenchainmail, healingpotion, sword, knife;
+        Item knife, spear, axe, mace,sword, leather_vest, chainmail, breastplate, healthpotion, apple, cake, steak;
         NPC rat, goblin, orc, trader, boss;
 
 
@@ -101,22 +101,34 @@ public class Game {
         next_level.setExit("south", lair);
 
         //Create items
-        mace = new Item("A sturdy mace", 5, "mace", true, true, false,2,0);
-        spear = new Item("A spear made from bone", 4.5, "spear", true, true, false,3,0);
-        elvenchainmail = new Item("An elven chain mail ", 0.3, "elven chain mail", true, true, false,0,2);
-        healingpotion = new Item("a healing potion", 5.5, "healing potion", true, false, true,0,0);
-        sword = new Item("a foam sword", 0.7, "sword", true, true, false,4,0);
-        knife = new Item("a rusty knife", 0.2, "knife", true, true, false,1,0);
+        knife = new Item("A sharp knife", 0.45, "knife", false, true, false,1,0,1,0);
+        spear = new Item("A spear with an ornate head", 1.36, "spear", false, true, false,2,1,2,0);
+        axe = new Item("A sturdy axe ", 1.81, "axe", false, true, false,3,0,3,0);
+        mace = new Item("A mace", 1.81, "mace", false, true, false,4,0,4,0);
+        sword = new Item("your family sword", 1.36, "sword", false, true, false,5,1,5,0);
+        leather_vest = new Item("leather armour", 4.53, "leather", false, true, false,0,2,0,0);
+        chainmail= new Item("A chain shirt",9.06,"chain",false,true,false,0,4,0,0);
+        breastplate= new Item("A sturdy plate",18.12,"breastplate",false,true,false,0,6,0,0);
+        healthpotion= new Item("A magical drink replenishing all your health",0.2,"healthpotion",false,false,true,0,0,0,0);
+        apple = new Food("a green apple",0.05,"apple",true,false,false,0,0,0,2);
+        cake = new Food("a delicious cake",0.1,"cake",true,false,false,0,0,0,4);
+        steak = new Food("A juicy steak",0.2,"steak",true,false,false,0,0,0,6);
+
 
         // add items to collections per room
 
         for (Integer i : collection.keySet()) {
             collection.get(i).addItem(mace);
             collection.get(i).addItem(spear);
-            collection.get(i).addItem(elvenchainmail);
-            collection.get(i).addItem(healingpotion);
-            collection.get(i).addItem(sword);
+            collection.get(i).addItem(axe);
+            collection.get(i).addItem(chainmail);
+            collection.get(i).addItem(leather_vest);
             collection.get(i).addItem(knife);
+            collection.get(i).addItem(breastplate);
+            collection.get(i).addItem(healthpotion);
+            collection.get(i).addItem(cake);
+            collection.get(i).addItem(apple);
+            collection.get(i).addItem(steak);
             collection.get(i).getRandomItems();
         }
 
@@ -132,6 +144,8 @@ public class Game {
 
         //add boss to lair
         boss.setCurrentRoom(lair);
+        lair.addItem(sword);
+        boss.take("sword");
 
         // start game outside
         player.setCurrentRoom(entrance);
@@ -217,7 +231,7 @@ public class Game {
                 printLocationInfo();
                 break;
             case EAT:
-                eat();
+                eatItem(command);
                 break;
             case DROP:
                 dropItem(command);
@@ -359,7 +373,7 @@ public class Game {
          * @return true, if this command quits the game, false otherwise.
          */
         private boolean quit (Command command){
-            if (command.hasSecondWord()) {
+            if (!command.hasSecondWord()) {
                 System.out.println("Quit what?");
                 return false;
             } else {
@@ -376,9 +390,17 @@ public class Game {
             System.out.println();
         }
 
-        private void eat () {
-            System.out.println("I have eaten and I am not hungry anymore");
-            System.out.println();
+        private void eatItem (Command command) {
+            if(!command.hasSecondWord()){
+                System.out.println("eat what?");
+            } else {
+                if(player.eat(command.getSecondWord())){
+                    System.out.println("You eat a " + command.getSecondWord() +".");
+                    System.out.println("You are now at " + player.getHealth() + " health.");
+                } else {
+                    System.out.println("My bag does not contain " + command.getSecondWord() +".");
+                }
+            }
         }
 
         private void checkNPC() {
@@ -427,6 +449,7 @@ public class Game {
                 spawnList.remove(combatant);
                 combatant.setCurrentRoom(heaven);
                 inCombat=false;
+                player.increaseMonsters_Defeated();
                 System.out.println("You are victorious over " + combatant.getName() + ".");
             }
         } return inCombat;
