@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -17,7 +16,7 @@ public class Player extends Character {
 
     public Player(String name, int health, int armourClass, int toHit, int damageCode, boolean movable) {
         super(name, health, armourClass, toHit, damageCode, movable);
-        maxWeightInBag = 25;
+        maxWeightInBag = 50;
         hands=null;
         body=null;
         monsters_defeated=0;
@@ -50,7 +49,7 @@ public class Player extends Character {
     public Item setHands(Item hands) {
         unequipHands();
         this.hands = hands;
-        inventory.remove(hands);
+        removeItem(hands);
         setToHit(getBase_attack()+hands.getAttackBonus()+level);
         setDamageCode(getBase_damage()+hands.getDamageBonus()+level);
         setArmourClass(getArmourClass()+hands.getDefenseBonus()+level);
@@ -65,7 +64,7 @@ public class Player extends Character {
     public Item setBody(Item body) {
         unequipBody();
         this.body = body;
-        inventory.remove(body);
+        removeItem(body);
         setArmourClass(getBase_defence()+ body.getDefenseBonus());
         return body;
     }
@@ -110,14 +109,14 @@ public class Player extends Character {
 
     private void unequipHands(){
         if(!(hands==null)){
-            inventory.add(hands);
+            addItem(hands);
             hands=null;
         }
     }
 
     private void unequipBody(){
         if(!(body==null)){
-            inventory.add(body);
+            addItem(body);
             body=null;
         }
     }

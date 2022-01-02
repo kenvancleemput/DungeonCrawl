@@ -2,9 +2,9 @@ import java.util.*;
 
 /**
  *  This class is the main class of the "Dungeon Crawl" application.
- *  "Dungeon Crawl" is a very simple, text based adventure game.  Users
- *  can walk around some scenery. That's all. It should really be extended
- *  to make it more interesting!
+ *  "Dungeon Crawl" is a quite complex, text based adventure game.  Users
+ *  can walk around a dungeon, looking for their ancestral sword.
+ *  The dungeon contains monsters, loot and gold.
  *
  *  To play this game, create an instance of this class and call the "play"
  *  method.
@@ -22,14 +22,17 @@ public class Game {
     private Character player;
     private HashMap<Integer, Room> collection;
     private NPC combatant;
+    private NPC merchant;
     private ArrayList<NPC> spawnList;
     private boolean inCombat;
+    private boolean winner=false;
+    private boolean alive=true;
 
     /**
      * Create the game and initialise its internal map.
      */
     public Game() {
-        player = new Player("Albrecht", 100, 10, 5, 20, true);
+        player = new Player("Albrecht", 10, 10, 5, 4, true);
         collection = new HashMap<>();
         spawnList = new ArrayList<>();
         createRooms();
@@ -37,6 +40,8 @@ public class Game {
         parser = new Parser();
         inCombat=false;
         combatant =null;
+        merchant=null;
+
     }
 
     /**
@@ -44,7 +49,7 @@ public class Game {
      */
     private void createRooms() {
         Room entrance, torture_room, dining_room, armoury, hallway, library, descending_path, lair, next_level, dug_path;
-        Item knife, spear, axe, mace,sword, leather_vest, chainmail, breastplate, healthpotion, apple, cake, steak;
+        Item knife, spear, axe, mace,sword, leather_vest, chainmail, breastplate, healthpotion, holywater, apple, cake, steak;
         NPC rat, goblin, orc, trader, boss;
 
 
@@ -110,6 +115,7 @@ public class Game {
         chainmail= new Armour("A chain shirt",9.06,"chain",true,false,0,4,0);
         breastplate= new Armour("A sturdy plate",18.12,"breastplate",true,false,0,6,0);
         healthpotion= new Consumable("A magical drink replenishing all your health",0.2,"healthpotion",false,true,0,0,0);
+        holywater = new Consumable("a flask filled with holy water. Very effective",0.2,"holywater",false,true,0,0,0);
         apple = new Food("a green apple",0.05,"apple",true,false,false,0,0,0,2);
         cake = new Food("a delicious cake",0.1,"cake",true,false,false,0,0,0,4);
         steak = new Food("A juicy steak",0.2,"steak",true,false,false,0,0,0,6);
@@ -118,17 +124,18 @@ public class Game {
         // add items to collections per room
 
         for (Integer i : collection.keySet()) {
-            collection.get(i).addItem(mace);
-            collection.get(i).addItem(spear);
-            collection.get(i).addItem(axe);
-            collection.get(i).addItem(chainmail);
-            collection.get(i).addItem(leather_vest);
-            collection.get(i).addItem(knife);
-            collection.get(i).addItem(breastplate);
-            collection.get(i).addItem(healthpotion);
-            collection.get(i).addItem(cake);
-            collection.get(i).addItem(apple);
-            collection.get(i).addItem(steak);
+            collection.get(i).addToCollection(mace);
+            collection.get(i).addToCollection(spear);
+            collection.get(i).addToCollection(axe);
+            collection.get(i).addToCollection(chainmail);
+            collection.get(i).addToCollection(leather_vest);
+            collection.get(i).addToCollection(knife);
+            collection.get(i).addToCollection(breastplate);
+            collection.get(i).addToCollection(healthpotion);
+            collection.get(i).addToCollection(holywater);
+            collection.get(i).addToCollection(cake);
+            collection.get(i).addToCollection(apple);
+            collection.get(i).addToCollection(steak);
             collection.get(i).getRandomItems();
         }
 
@@ -137,10 +144,19 @@ public class Game {
         goblin = new NPC("Goblin", 10, 12, 2, 5, true, false, "A small green humanoid");
         orc = new NPC("Orc", 15, 14, 3, 6, true, false, "A towering green giant");
         trader = new NPC("Khajit", 200, 20, 10, 10, false, true, "A friendly gnome selling some wares");
-        boss = new NPC("Skeleton King", 30, 18, 6, 8, false, false, "A skeleton with a shining crown and a familiar sword");
+        merchant=trader;
+        boss = new NPC("Skeleton King", 30, 5, 6, 8, false, false, "A skeleton with a shining crown and a familiar sword");
 
         // add NPC's to spawnList
         Collections.addAll(spawnList, rat, goblin, orc, trader,boss);
+
+        //Assign goods to trader
+        merchant.addItem(healthpotion);
+        merchant.addItem(healthpotion);
+        merchant.addItem(holywater);
+        merchant.addItem(mace);
+        merchant.addItem(breastplate);
+
 
         //add boss to lair
         boss.setCurrentRoom(lair);
@@ -165,8 +181,7 @@ public class Game {
                 npc.setCurrentRoom(collection.get(i));
 
             }
-            System.out.println(npc.getInfo());
-        }
+            }
     }
 
     /**
@@ -179,20 +194,28 @@ public class Game {
         // execute them until the game is over.
 
         boolean finished = false;
-
-        while (!finished){
-            while(!inCombat && player.alive()) {
+        while (!finished && !winner){
+            while(!finished && !inCombat && alive) {
                 Command command = parser.getCommand();
                 finished = processCommand(command);
                 }
-            while (inCombat && player.alive()){
-
+            while (!finished && inCombat && alive){
                 Command command= parser.getCommand();
                 finished= processCommand(command);
 
         }}
-    System.out.println("Thank you for playing.  Good bye.");
+        if(winner){
+            System.out.println("You have retrieved the ancestral blade. Congratulations!");
+        } else {
+            if(!alive){
+                System.out.println("You fall on the ground, felled by " + combatant.getName() +".");
+            } else {
+                if(finished){
+                    System.out.println("Thank you for playing. Goodbye!");
+                }
+            }
         }
+    }
 
     /**
      * Print out the opening message for the player.
@@ -226,6 +249,10 @@ public class Game {
                 break;
             case GO:
                 goRoom(command);
+                checkNPC();
+                if(inCombat){
+                    printCombatInfo();
+                }
                 break;
             case LOOK:
                 printLocationInfo();
@@ -241,6 +268,7 @@ public class Game {
                 break;
             case EQUIP:
                 equip(command);
+                break;
             case QUIT:
                 wantToQuit = true;
                 break;
@@ -276,17 +304,25 @@ public class Game {
                 break;
             case DRINK:
                 player.drink();
+                printCombatInfo();
                 break;
             case ATTACK:
                 fight();
+                checkNPC();
+
                 break;
             default:
                 System.out.println("I don't know what you mean");
 
         }}
-        checkNPC();
-        if(inCombat){
-            printCombatInfo();
+        if(!player.alive()) {
+            alive=false;
+            wantToQuit = true;
+        }
+
+        if(player.inventory().contains("sword")){
+            winner=true;
+            wantToQuit=true;
         }
         return wantToQuit;
     }
@@ -329,8 +365,7 @@ public class Game {
                     if (npc.getMovable()) {
                         String exit = npc.getCurrentRoom().getRandomExit();
                         npc.go(exit);
-                        System.out.println(npc.getLocation());
-                    }
+                     }
                 }
             }
         }
@@ -425,14 +460,18 @@ public class Game {
                 }
             }
         }
+
+    private void checkMerchant(){
+            if(player.getCurrentRoom()==merchant.getCurrentRoom()){
+
+            }
+
+    }
     private boolean fight() {
         int playerAttack = player.attack();
         int monsterAttack = combatant.attack();
         Room heaven= new Room("bla", "bla");
-        if (!player.alive()) {
-            System.out.println("You are dead");
-        } else {
-            if (playerAttack >= combatant.getArmourClass()) {
+       if (playerAttack >= combatant.getArmourClass()) {
                 int damage = player.damage();
                 System.out.println("You attack, rolling " + playerAttack+ ",hit and do " + damage + " damage!");
                 combatant.setHealth(combatant.getHealth() - damage);
@@ -450,14 +489,17 @@ public class Game {
 
             } else {
                 spawnList.remove(combatant);
+                if(combatant.getName().contains("Skeleton King")){
+                    combatant.drop("sword");
+                }
                 combatant.setCurrentRoom(heaven);
                 inCombat=false;
                 player.increaseMonsters_Defeated();
                 player.increaseLevel();
                 System.out.println("You are victorious over " + combatant.getName() + ".");
-            }
-        } return inCombat;
-    }
+            } return inCombat;
+        }
+
 
 
     private void printCombatInfo() {

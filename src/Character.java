@@ -14,7 +14,8 @@ abstract public class Character {
     private int damageCode;
     private int base_damage;
     private Boolean movable;
-    protected ArrayList<Item> inventory;
+    private ArrayList<Item> inventory;
+    private int gold;
 
     public Character(String name, int health, int armourClass, int toHit, int damageCode, boolean movable) {
         this.name = name;
@@ -28,6 +29,7 @@ abstract public class Character {
         base_damage = damageCode;
         this.movable = movable;
         inventory = new ArrayList<>();
+        gold=0;
     }
 
     public String getName() {
@@ -112,11 +114,15 @@ abstract public class Character {
 
     public String getInfo() {
         String info = currentRoom.getLongDescription();
-        if (!inventory.isEmpty()) {
-            info += "\n" + inventory();
-        }
+        info+="\n You have " + health +" health left.";
         return info;
     }
+
+    public void setGold(int gold){ this.gold=gold;}
+
+    public int getGold(){ return gold;}
+
+    public void addGold(int gold){ this.gold += gold;}
 
     public Boolean getMovable() {
         return movable;
@@ -172,6 +178,8 @@ abstract public class Character {
     public void addItem(Item item) {
         inventory.add(item);
     }
+
+    public void removeItem(Item item) {inventory.remove(item);}
 
     public Item bagGetItem(String itemName) {
         for (Item item : inventory) {

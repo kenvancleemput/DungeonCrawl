@@ -101,8 +101,11 @@ public class Room
     }
 
     public void addItem(Item item){
-        this.collection.add(item);    }
+        this.items.add(item);    }
 
+    public void addToCollection(Item item){
+        this.collection.add(item);
+    }
     public void getRandomItems(){
         Random r = new Random();
         int i=r.nextInt(5);
