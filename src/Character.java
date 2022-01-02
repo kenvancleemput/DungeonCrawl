@@ -208,6 +208,11 @@ abstract public class Character {
     }
 
     public void drink() {
+        Item healthPotion= new Consumable("A magical drink replenishing all your health",0.2,"healthpotion",false,true,0,0,0);
+        if(inventory.contains(healthPotion)){
+            health=max_health;
+            inventory.remove(healthPotion);
+        }
     }
 
     public Item setHands(Item hands) { return null;}

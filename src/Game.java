@@ -262,6 +262,7 @@ public class Game {
             case DROP:
             case TAKE:
             case QUIT:
+            case EQUIP:
                 System.out.println(isInCombat());
                 break;
             case RUN:
@@ -452,6 +453,7 @@ public class Game {
                 combatant.setCurrentRoom(heaven);
                 inCombat=false;
                 player.increaseMonsters_Defeated();
+                player.increaseLevel();
                 System.out.println("You are victorious over " + combatant.getName() + ".");
             }
         } return inCombat;

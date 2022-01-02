@@ -85,7 +85,25 @@ public class Player extends Character {
         for (int i:level_chart.keySet()){
             if(monsters_defeated == i){
                 level=level_chart.get(i);
-
+                int attack= getBase_attack();
+                int damage = getDamageCode();
+                int defense = getBase_defence();
+                if(hands==null){
+                    attack+=level;
+                    damage+=level;
+                } else {
+                    attack+=level + hands.getAttackBonus();
+                    damage += level + hands.getDamageBonus();
+                    defense += level + hands.getDefenseBonus();
+                }
+                if (body==null){
+                    defense+=level;
+                } else {
+                    defense+=level+body.getDefenseBonus();
+                }
+                setToHit(attack);
+                setDamageCode(damage);
+                setArmourClass(defense);
             }
         }
     }
