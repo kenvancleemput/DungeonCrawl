@@ -14,8 +14,8 @@ public class Player extends Character {
     private int monsters_defeated;
     private HashMap<Integer, Integer> level_chart;
 
-    public Player(String name, int health, int armourClass, int toHit, int damageCode, boolean movable) {
-        super(name, health, armourClass, toHit, damageCode, movable);
+    public Player(String name, int health, int armourClass, int toHit, int damageCode, boolean movable, int gold) {
+        super(name, health, armourClass, toHit, damageCode, movable, gold);
         maxWeightInBag = 50;
         hands=null;
         body=null;

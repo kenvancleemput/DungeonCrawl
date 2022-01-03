@@ -14,10 +14,10 @@ abstract public class Character {
     private int damageCode;
     private int base_damage;
     private Boolean movable;
-    private ArrayList<Item> inventory;
+    protected ArrayList<Item> inventory;
     private int gold;
 
-    public Character(String name, int health, int armourClass, int toHit, int damageCode, boolean movable) {
+    public Character(String name, int health, int armourClass, int toHit, int damageCode, boolean movable, int gold) {
         this.name = name;
         this.health = health;
         max_health = health;
@@ -29,7 +29,7 @@ abstract public class Character {
         base_damage = damageCode;
         this.movable = movable;
         inventory = new ArrayList<>();
-        gold=0;
+        this.gold=gold;
     }
 
     public String getName() {
@@ -216,7 +216,7 @@ abstract public class Character {
     }
 
     public void drink() {
-        Item healthPotion= new Consumable("A magical drink replenishing all your health",0.2,"healthpotion",false,true,0,0,0);
+        Item healthPotion= new Consumable("A magical drink replenishing all your health",0.2,"healthpotion",false,true,0,0,0,10,2);
         if(inventory.contains(healthPotion)){
             health=max_health;
             inventory.remove(healthPotion);

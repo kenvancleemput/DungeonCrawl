@@ -12,9 +12,11 @@ public class Item {
     private int attackBonus;
     private int defenseBonus;
     private int damageBonus;
+    private int buyCost;
+    private int sellCost;
 
 
-    public Item(String description, double weight, String name, boolean isEquippable, boolean isConsumable, int attackBonus, int defenseBonus, int damageBonus) {
+    public Item(String description, double weight, String name, boolean isEquippable, boolean isConsumable, int attackBonus, int defenseBonus, int damageBonus, int buyCost, int sellCost) {
         this.description = description;
         this.weight = weight;
         this.name = name;
@@ -23,6 +25,8 @@ public class Item {
         this.attackBonus=attackBonus;
         this.defenseBonus=defenseBonus;
         this.damageBonus=damageBonus;
+        this.buyCost=buyCost;
+        this.sellCost=sellCost;
 
     }
     public int getAttackBonus() {
@@ -70,5 +74,13 @@ public class Item {
 
     public boolean isConsumable() {
         return isConsumable;
+    }
+
+    public int getBuyCost() {
+        return buyCost;
+    }
+
+    public int getSellCost() {
+        return sellCost;
     }
 }

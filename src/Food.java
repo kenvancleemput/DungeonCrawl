@@ -2,8 +2,8 @@ public class Food extends Item{
     private boolean isEdible;
     private int healingValue;
 
-    public Food(String description, double weight, String name, Boolean isEdible, boolean isEquippable, boolean isConsumable, int attackBonus, int defenseBonus, int damageBonus, int healingValue) {
-        super(description, weight, name, isEquippable, isConsumable, attackBonus, defenseBonus, damageBonus);
+    public Food(String description, double weight, String name, Boolean isEdible, boolean isEquippable, boolean isConsumable, int attackBonus, int defenseBonus, int damageBonus, int healingValue, int buyCost, int sellCost) {
+        super(description, weight, name, isEquippable, isConsumable, attackBonus, defenseBonus, damageBonus, buyCost, sellCost);
         this.isEdible=isEdible;
         this.healingValue=healingValue;
     }
