@@ -21,7 +21,7 @@ public class CommandWords
      * Constructor - initialise the command words.
      */
     public CommandWords() {
-        validCommands = new HashMap<String, CommandWord>();
+        validCommands = new HashMap<>();
         for (CommandWord word : CommandWord.values()) {
             if (word != CommandWord.UNKNOWN) {
                     validCommands.put(word.getWord(), word);
@@ -49,9 +49,7 @@ public class CommandWords
     }
 
     public CommandWord getCommand(String aString) {
-        if (isCommand(aString)) {
-            return validCommands.get(aString);
-        }
+        if (isCommand(aString)) return validCommands.get(aString);
         return CommandWord.UNKNOWN;
     }
 }

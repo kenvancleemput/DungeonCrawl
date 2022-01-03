@@ -28,6 +28,9 @@ public class NPC extends Character{
     public int setRandomGold(){
         Random r=new Random();
         int bling=r.nextInt(10);
+        if(bling<1){
+            bling=1;
+        }
         return bling;
     }
 

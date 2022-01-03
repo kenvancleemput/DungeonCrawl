@@ -114,7 +114,6 @@ abstract public class Character {
 
     public String getInfo() {
         String info = currentRoom.getLongDescription();
-        info+="\n You have " + health +" health left.";
         return info;
     }
 
@@ -215,11 +214,16 @@ abstract public class Character {
         return true;
     }
 
-    public void drink() {
-        Item healthPotion= new Consumable("A magical drink replenishing all your health",0.2,"healthpotion",false,true,0,0,0,10,2);
-        if(inventory.contains(healthPotion)){
+    public void useHealth(String aString) {
+        if (inventory.contains(aString)){
             health=max_health;
-            inventory.remove(healthPotion);
+            inventory.remove(bagGetItem("healthpotion"));
+          }
+    }
+
+    public void useHoly(String aString) {
+        if(inventory.contains(aString)){
+            inventory.remove(bagGetItem("holywater"));
         }
     }
 
@@ -251,5 +255,7 @@ abstract public class Character {
 
     public void increaseLevel() {
     }
+
+    public String checkEquipment() { return null;}
 
 }

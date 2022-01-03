@@ -154,12 +154,7 @@ public class Game {
         // add NPC's to spawnList
         Collections.addAll(spawnList, rat, goblin, orc, boss);
 
-        //give movable NPC's cash
-        for(NPC npc: spawnList){
-            if(npc.getMovable()){
-                npc.setRandomGold();
-            }
-        }
+
 
         //Assign trader to library and goods to trader
         merchant.setCurrentRoom(library);
@@ -256,9 +251,6 @@ public class Game {
         CommandWord commandWord = command.getCommandWord();
         if (!inCombat) {
             switch (commandWord) {
-                case UNKNOWN:
-                    System.out.println("I don't know what you mean...");
-                    break;
                 case HELP:
                     printHelp();
                     break;
@@ -274,6 +266,7 @@ public class Game {
                     printLocationInfo();
                     System.out.println(player.inventory());
                     System.out.println(playerGold());
+                    System.out.println(player.checkEquipment());
                     break;
                 case EAT:
                     eatItem(command);
@@ -292,7 +285,7 @@ public class Game {
                     break;
                 case RUN:
                 case INFO:
-                case DRINK:
+                case USE:
                 case ATTACK:
                     System.out.println(isInCombat());
                     break;
@@ -320,8 +313,8 @@ public class Game {
                 case INFO:
                     printCombatInfo();
                     break;
-                case DRINK:
-                    player.drink();
+                case USE:
+                    useItem(command);
                     break;
                 case ATTACK:
                     fight();
@@ -348,9 +341,11 @@ public class Game {
     }
 
     private boolean processAction(Action action){
+        boolean wanttoTrade=true;
+        if(merchant.inventory.contains(action.getSecondWord()) || player.inventory.contains(action.getSecondWord())){
         Item item= merchant.bagGetItem(action.getSecondWord());
         Item item2= player.bagGetItem(action.getSecondWord());
-        boolean wanttoTrade=true;
+
         TradeAction tradeAction=action.getTradeAction();
         switch (tradeAction){
             case BUY:
@@ -369,11 +364,34 @@ public class Game {
                 Random r=new Random();
                 int i=r.nextInt(collection.size());
                 merchant.setCurrentRoom(collection.get(i));
+                printLocationInfo();
             case UNKNOWN:
                 System.out.println("The trader looks at you wearily");
                 break;
             default:
                 System.out.println("I don't know what you mean");
+        }} else {
+            TradeAction tradeAction=action.getTradeAction();
+            switch (tradeAction){
+                case SELL:
+                case BUY:
+                    System.out.println("buy or sell a valid item");
+                    break;
+                case LEAVE:
+                    wanttoTrade=false;
+                    System.out.println("You leave the trader behind");
+                    Random r=new Random();
+                    int i=r.nextInt(collection.size());
+                    merchant.setCurrentRoom(collection.get(i));
+                    printLocationInfo();
+                    break;
+                case UNKNOWN:
+                    System.out.println("The trader looks at you wearily");
+                    break;
+                default:
+                    System.out.println("I don't know what you mean.");
+            }
+
         } return wanttoTrade;
     }
 
@@ -462,6 +480,25 @@ public class Game {
                 System.out.println("My bag does not contain " + command.getSecondWord());
             }
         }
+    }
+
+    public void useItem(Command command){
+        if(!command.hasSecondWord()){
+            // if there is no second word, we don't know what to use
+            System.out.println("Use what?");
+        } else {
+            if(player.inventory().contains(command.getSecondWord())){
+                if(command.getSecondWord().contains("healthpotion")){
+                player.useHealth(command.getSecondWord());
+            } else {
+                if (command.getSecondWord().contains("holywater") && combatant.getName().contains("Skeleton King")){
+                    System.out.println("It's super effective");
+                    combatant.setHealth(combatant.getHealth()-20);
+                } else {
+                    System.out.println("You can't use that, sorry.");
+                }
+                }
+        }}
     }
 
     public String isInCombat() {
@@ -555,7 +592,7 @@ public class Game {
             spawnList.remove(combatant);
             combatant.setCurrentRoom(heaven);
             inCombat = false;
-            player.setGold(player.getGold()+combatant.getGold());
+            player.setGold(player.getGold()+combatant.setRandomGold());
             player.increaseMonsters_Defeated();
             player.increaseLevel();
             System.out.println("You are victorious over " + combatant.getName() + ".");

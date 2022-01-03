@@ -103,6 +103,7 @@ public class Player extends Character {
                 setToHit(attack);
                 setDamageCode(damage);
                 setArmourClass(defense);
+                setHealth(level*getMax_health());
             }
         }
     }
@@ -119,6 +120,21 @@ public class Player extends Character {
             addItem(body);
             body=null;
         }
+    }
+
+    public String checkEquipment() {
+        String eq="";
+        if(hands!=null){
+            eq+="I am wielding a " + hands.getName() +".";
+        } else {
+            eq+="I am wielding nothing.";
+        }
+        if(body!=null){
+            eq+="\nI'm wearing " + body.getName() + " for protection.";
+        } else {
+            eq+="\nI'm not wearing protection.";
+        }
+        return eq;
     }
 }
 

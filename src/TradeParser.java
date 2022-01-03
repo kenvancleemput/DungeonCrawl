@@ -58,12 +58,9 @@ public class TradeParser {
 
         // Now check whether this word is known. If so, create a command
         // with it. If not, create a "null" command (for unknown command).
-        if(actions.isAction(word1)) {
+
             return new Action(actions.getAction(word1), word2);
-        }
-        else {
-            return new Action(null, word2);
-        }
+
     }
 
 
