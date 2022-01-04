@@ -29,12 +29,14 @@ public class Game {
     private boolean winner = false;
     private boolean alive = true;
     private boolean trading = false;
+    private int moves;
+    private boolean spawned;
 
     /**
      * Create the game and initialise its internal map.
      */
     public Game() {
-        player = new Player("Albrecht", 20, 10, 5, 4, true,0);
+        player = new Player("Albrecht", 10, 10, 3, 4, true,0);
         collection = new HashMap<>();
         spawnList = new ArrayList<>();
         merchant = null;
@@ -44,6 +46,10 @@ public class Game {
         tradeParser = new TradeParser();
         inCombat = false;
         combatant = null;
+        moves=0;
+        spawned=false;
+
+
 
 
     }
@@ -54,7 +60,7 @@ public class Game {
     private void createRooms() {
         Room entrance, torture_room, dining_room, armoury, hallway, library, descending_path, lair, next_level, dug_path;
         Item knife, spear, axe, mace, sword, leather_vest, chainmail, breastplate, healthpotion, holywater, apple, cake, steak;
-        NPC rat, goblin, orc, trader, boss;
+        NPC rat,kobold, goblin, gnoll, orc, trader, boss;
 
 
         // create the rooms
@@ -145,16 +151,16 @@ public class Game {
 
         // Create Characters
         rat = new NPC("Rat", 5, 10, 1, 4, true, false, "A giant rat",0);
+        kobold= new NPC("kobold",7,10,2,4,true,false,"A kobold looking at you with murderous eyes",0);
         goblin = new NPC("Goblin", 10, 12, 2, 5, true, false, "A small green humanoid",0);
+        gnoll= new NPC("gnoll",12,12,3,5,true,false,"A man with a dog's head",0);
         orc = new NPC("Orc", 15, 14, 3, 6, true, false, "A towering green giant",0);
         trader = new NPC("Khajit", 200, 20, 10, 10, false, true, "A friendly gnome selling some wares",200);
         merchant = trader;
         boss = new NPC("Skeleton King", 30, 5, 6, 8, false, false, "A skeleton with a shining crown and a familiar sword",50);
 
-        // add NPC's to spawnList
-        Collections.addAll(spawnList, rat, goblin, orc, boss);
-
-
+        // add NPC's to spawnList and wanderingMonster
+        Collections.addAll(spawnList, rat,kobold, goblin,gnoll, orc, boss);
 
         //Assign trader to library and goods to trader
         merchant.setCurrentRoom(library);
@@ -251,6 +257,9 @@ public class Game {
         CommandWord commandWord = command.getCommandWord();
         if (!inCombat) {
             switch (commandWord) {
+                case STATS:
+                    printStats();
+                break;
                 case HELP:
                     printHelp();
                     break;
@@ -319,6 +328,7 @@ public class Game {
                 case ATTACK:
                     fight();
                     checkNPC();
+                    printCombatInfo();
                     break;
                 case UNKNOWN:
                     System.out.println("I don't know what you mean");
@@ -424,8 +434,8 @@ public class Game {
      * command words.
      */
     private void printHelp() {
-        System.out.println("Player " + player.getName() + " is lost and alone, and wanders");
-        System.out.println("around at the university.");
+        System.out.println("Player " + player.getName() + " is looking for ");
+        System.out.println("the ancestral blade of the family.");
         System.out.println();
         System.out.println("Possible command words are:");
         System.out.println(parser.showCommands());
@@ -450,11 +460,13 @@ public class Game {
             System.out.println("There is no door!");
         } else {
             printLocationInfo();
+            moves++;
+            spawn();
             for (NPC npc : spawnList) {
                 if (npc.getMovable()) {
                     String exit = npc.getCurrentRoom().getRandomExit();
                     npc.go(exit);
-                }
+                    }
             }
         }
     }
@@ -493,6 +505,7 @@ public class Game {
             } else {
                 if (command.getSecondWord().contains("holywater") && combatant.getName().contains("Skeleton King")){
                     System.out.println("It's super effective");
+                    player.useHoly("holywater");
                     combatant.setHealth(combatant.getHealth()-20);
                 } else {
                     System.out.println("You can't use that, sorry.");
@@ -547,18 +560,23 @@ public class Game {
                 }
             }
         } else {
+            if(spawned){
+                inCombat=true;
+            }
             if (combatant.getHealth() <= 0) {
                 for (NPC npc : spawnList) {
-                    if (npc.getCurrentRoom() == player.getCurrentRoom() && !npc.getFriendly() && npc.alive()) {
-                        combatant = npc;
-                        inCombat = true;
-                    } else {
-                        inCombat= false;
-                    }
+                        if (npc.getCurrentRoom() == player.getCurrentRoom() && !npc.getFriendly() && npc.alive()) {
+                            combatant = npc;
+                            inCombat=true;
+                        } else {
+                            inCombat= false;
+                        }
+                }
+
                 }
             }
         }
-    }
+
 
     private void checkMerchant(){
         if(player.getCurrentRoom()==merchant.getCurrentRoom()){
@@ -578,8 +596,7 @@ public class Game {
             combatant.setHealth(combatant.getHealth() - damage);
         } else {
             System.out.println("You attack, rolling " + playerAttack + " but miss");
-        }
-        if (combatant.alive()) {
+        } if (combatant.alive()) {
             if (monsterAttack >= player.getArmourClass()) {
                 int damage = combatant.damage();
                 System.out.println("The " + combatant.getName() + " hits you and deals " + damage + " damage!");
@@ -589,15 +606,24 @@ public class Game {
             }
 
         } else {
-            spawnList.remove(combatant);
-            combatant.setCurrentRoom(heaven);
-            inCombat = false;
-            player.setGold(player.getGold()+combatant.setRandomGold());
-            player.increaseMonsters_Defeated();
-            player.increaseLevel();
-            System.out.println("You are victorious over " + combatant.getName() + ".");
-            printLocationInfo();
-
+            if(spawned){
+                player.setGold(player.getGold()+combatant.setRandomGold());
+                spawned=false;
+                inCombat=false;
+                System.out.println("You are victorious over " + combatant.getName()+".");
+                player.increaseMonsters_Defeated();
+                player.increaseLevel();
+                combatant=null;
+                printLocationInfo();
+            } else {
+                spawnList.remove(combatant);
+                combatant.setCurrentRoom(heaven);
+                inCombat = false;
+                player.setGold(player.getGold() + combatant.setRandomGold());
+                checkLevel();
+                System.out.println("You are victorious over " + combatant.getName() + ".");
+                printLocationInfo();
+            }
         }
         return inCombat;
     }
@@ -621,6 +647,40 @@ public class Game {
                 System.out.println("You can't equip that");
             }
 
+        }
+    }
+
+    private void spawn(){
+        HashMap<Integer,NPC> wanderingMonster=new HashMap<>();
+        NPC zombie, skeleton, ghoul, wight, vampire;
+        zombie =new NPC("zombie",5,8,0,4,false,false,"a decaying corpse",0);
+        skeleton=new NPC("skeleton",7,10,1,4,false,false,"magically animated bones",0);
+        ghoul = new NPC("ghoul",9,10,1,5,false,false,"a flesh eating undead",0);
+        wight=new NPC("wight",11,12,2,5,false,false,"a translucent noble of ages past",0);
+        vampire=new NPC("vampire",13,12,3,6,false,false,"a humanoid with pointy teeth",0);
+        wanderingMonster.put(1,zombie);
+        wanderingMonster.put(2,skeleton);
+        wanderingMonster.put(3,ghoul);
+        wanderingMonster.put(4,wight);
+        wanderingMonster.put(5, vampire);
+        if(moves>2){
+            NPC monster=wanderingMonster.get(player.getLevel());
+            monster.setCurrentRoom(player.getCurrentRoom());
+            moves=0;
+            combatant=monster;
+            spawned=true;
+        }
+    }
+
+    private void printStats(){
+        System.out.println(player.showStats());
+        System.out.println(player.checkEquipment());
+    }
+
+    private void checkLevel(){
+        player.increaseMonsters_Defeated();
+        if(player.increaseLevel()){
+            System.out.println("you level up, gain "+player.getMax_health()+ " hitpoints and 1 to all your other stats.");
         }
     }
 

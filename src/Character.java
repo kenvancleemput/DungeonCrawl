@@ -221,6 +221,8 @@ abstract public class Character {
           }
     }
 
+
+
     public void useHoly(String aString) {
         if(inventory.contains(aString)){
             inventory.remove(bagGetItem("holywater"));
@@ -253,9 +255,14 @@ abstract public class Character {
 
     ;
 
-    public void increaseLevel() {
-    }
+    public boolean increaseLevel() {
+        boolean b = false;
+        return b;}
+
+    public int getLevel(){return 0;}
 
     public String checkEquipment() { return null;}
+
+    public String showStats(){ return null;}
 
 }

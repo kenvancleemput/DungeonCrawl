@@ -21,6 +21,7 @@ public class Player extends Character {
         body=null;
         monsters_defeated=0;
         level_chart=new HashMap<>();
+        level=1;
         setLevel_chart();
     }
 
@@ -69,6 +70,10 @@ public class Player extends Character {
         return body;
     }
 
+    public int getLevel() {
+        return level;
+    }
+
     public void setLevel_chart(){
         level_chart.put(3,2);
         level_chart.put(6,3);
@@ -80,12 +85,13 @@ public class Player extends Character {
         monsters_defeated++;
     }
 
-    public void increaseLevel(){
+    public boolean increaseLevel(){
+        boolean levelup=false;
         for (int i:level_chart.keySet()){
             if(monsters_defeated == i){
                 level=level_chart.get(i);
                 int attack= getBase_attack();
-                int damage = getDamageCode();
+                int damage = getBase_damage();
                 int defense = getBase_defence();
                 if(hands==null){
                     attack+=level;
@@ -104,8 +110,9 @@ public class Player extends Character {
                 setDamageCode(damage);
                 setArmourClass(defense);
                 setHealth(level*getMax_health());
+                levelup=true;
             }
-        }
+        } return levelup;
     }
 
     private void unequipHands(){
@@ -135,6 +142,13 @@ public class Player extends Character {
             eq+="\nI'm not wearing protection.";
         }
         return eq;
+    }
+
+    public String showStats(){
+        String stats="I have ";
+        stats+= getHealth()+ " health and " + getToHit() + " attack bonus, " + getArmourClass()+ " armour class";
+        stats+= "\nam level " + getLevel() +" and I do from 1 to "+ getDamageCode() + " damage";
+        return stats;
     }
 }
 

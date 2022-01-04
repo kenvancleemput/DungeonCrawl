@@ -43,8 +43,8 @@ public class CommandWords
     public String showAll() {
         String show = "";
         for (String command : validCommands.keySet()) {
-            show += command + " ";
-        }
+            show += "\n" + command + " is used " + validCommands.get(command).getSituation() +" and " + validCommands.get(command).getExplanation();
+             }
         return show;
     }
 
