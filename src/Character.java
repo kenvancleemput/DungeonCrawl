@@ -256,8 +256,7 @@ abstract public class Character {
     ;
 
     public boolean increaseLevel() {
-        boolean b = false;
-        return b;}
+        return false;}
 
     public int getLevel(){return 0;}
 
