@@ -4,19 +4,19 @@ public class TradeParser {
 
 /**
  * This class is part of the "Dungeon Crawl" application.
- * "Dungeon Crawl" is a very simple, text based adventure game.
+ * "Dungeon Crawl" is a complicated, text based adventure game.
  *
- * This parser reads user input and tries to interpret it as an "Adventure"
+ * This parser reads user input and tries to interpret it as a "trade action"
  * command. Every time it is called it reads a line from the terminal and
  * tries to interpret the line as a two word command. It returns the command
- * as an object of class Command.
+ * as an object of class Action.
  *
- * The parser has a set of known command words. It checks user input against
- * the known commands, and if the input is not one of the known commands, it
- * returns a command object that is marked as an unknown command.
+ * The parser has a set of known action words. It checks user input against
+ * the known actions, and if the input is not one of the known actions, it
+ * returns an action object that is marked as an unknown action.
  *
- * @author  Michael Kölling and David J. Barnes
- * @version 2011.07.31
+ * @author  Ken Van Cleemput, based on code by Michael Kölling and David J. Barnes
+ * @version 2022.01.05
  */
 
 
@@ -34,7 +34,7 @@ public class TradeParser {
     }
 
     /**
-     * @return The next command from the user.
+     * @return The next action from the user.
      */
     public Action getAction()
     {
@@ -56,15 +56,18 @@ public class TradeParser {
             }
         }
 
-        // Now check whether this word is known. If so, create a command
-        // with it. If not, create a "null" command (for unknown command).
+        // Now check whether this word is known. If so, create an action
+        // with it. If not, create a "null" action (for unknown action).
 
             return new Action(actions.getAction(word1), word2);
 
     }
 
 
-
+    /**
+     * Lists all the possible actions
+     * @return a string with all the possible actions while trading.
+     */
     public String showActions() {
         return actions.showAll();
     }

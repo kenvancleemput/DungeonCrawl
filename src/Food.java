@@ -1,3 +1,7 @@
+/**
+ * class used for storing if something can be eaten
+ * and its healing value
+ */
 public class Food extends Item{
     private boolean isEdible;
     private int healingValue;

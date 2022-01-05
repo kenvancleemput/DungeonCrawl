@@ -61,9 +61,10 @@ public class Parser
 
     }
 
-
-
-
+    /**
+     *
+     * @return a string of commands from arraylist
+     */
     public String showCommands() {
         return commands.showAll();
     }

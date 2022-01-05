@@ -2,13 +2,13 @@ import java.util.HashMap;
 
 /**
  * This class is part of the "Dungeon Crawl" application.
- * "Dungeon Crawl" is a very simple, text based adventure game.
+ * "Dungeon Crawl" is a complicated, text based adventure game.
  *
  * This class holds an enumeration of all command words known to the game.
  * It is used to recognise commands as they are typed in.
  *
- * @author  Michael Kölling and David J. Barnes
- * @version 2011.07.31
+ * @author  Ken Van Cleemput, based on code by Michael Kölling and David J. Barnes
+ * @version 2022.01.05
  */
 
 public class CommandWords
@@ -39,7 +39,10 @@ public class CommandWords
         return validCommands.containsKey(aString);
         }
 
-
+    /**
+     * A list of all commands
+     * @return string containing all commands
+     */
     public String showAll() {
         String show = "";
         for (String command : validCommands.keySet()) {
@@ -48,6 +51,11 @@ public class CommandWords
         return show;
     }
 
+    /**
+     *
+     * @param aString input by user
+     * @return the associated command word, or unknown.
+     */
     public CommandWord getCommand(String aString) {
         if (isCommand(aString)) return validCommands.get(aString);
         return CommandWord.UNKNOWN;

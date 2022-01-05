@@ -1,3 +1,5 @@
+import jdk.swing.interop.SwingInterOpUtils;
+
 import java.util.*;
 
 /**
@@ -10,11 +12,11 @@ import java.util.*;
  * method.
  * <p>
  * This main class creates and initialises all the others: it creates all
- * rooms, creates the parser and starts the game.  It also evaluates and
- * executes the commands that the parser returns.
+ * rooms and monsters, creates both parsers and starts the game.  It also evaluates and
+ * executes the commands that the parsers return.
  *
- * @author Michael Kölling and David J. Barnes
- * @version 2011.07.31
+ * @author Ken Van Cleemput on base code from Michael Kölling and David J. Barnes
+ * @version 2022/01/05
  */
 
 public class Game {
@@ -33,10 +35,10 @@ public class Game {
     private boolean spawned;
 
     /**
-     * Create the game and initialise its internal map.
+     * Create the game, initialise collections, create the rooms and spawn the monsters. Sets the booleans for win condition and in combat condition.
      */
     public Game() {
-        player = new Player("Albrecht", 10, 10, 3, 4, true,0);
+        player = new Player("Albrecht", 10, 10, 3, 4, true, 20);
         collection = new HashMap<>();
         spawnList = new ArrayList<>();
         merchant = null;
@@ -46,21 +48,17 @@ public class Game {
         tradeParser = new TradeParser();
         inCombat = false;
         combatant = null;
-        moves=0;
-        spawned=false;
-
-
-
-
+        moves = 0;
+        spawned = false;
     }
 
     /**
-     * Create all the rooms and link their exits together.
+     * Create all the rooms and link their exits together. Creates the monsters and items. Sets the sword that player needs to win in the bosses lair.
      */
     private void createRooms() {
         Room entrance, torture_room, dining_room, armoury, hallway, library, descending_path, lair, next_level, dug_path;
         Item knife, spear, axe, mace, sword, leather_vest, chainmail, breastplate, healthpotion, holywater, apple, cake, steak;
-        NPC rat,kobold, goblin, gnoll, orc, trader, boss;
+        NPC rat, kobold, goblin, gnoll, orc, trader, boss;
 
 
         // create the rooms
@@ -116,19 +114,19 @@ public class Game {
         next_level.setExit("south", lair);
 
         //Create items
-        knife = new Weapon("A sharp knife", 0.45, "knife", true, false, 1, 0, 1,5,1);
-        spear = new Weapon("A spear with an ornate head", 1.36, "spear", true, false, 2, 1, 2,10,2);
-        axe = new Weapon("A sturdy axe ", 1.81, "axe", true, false, 3, 0, 3,15,3);
-        mace = new Weapon("A mace", 1.81, "mace", true, false, 4, 0, 4,20,4);
-        sword = new Weapon("your family sword", 1.36, "sword", true, false, 5, 1, 5,100,1);
-        leather_vest = new Armour("leather armour", 4.53, "leather", true, false, 0, 2, 0,10,2);
-        chainmail = new Armour("A chain shirt", 9.06, "chain", true, false, 0, 4, 0,15,3);
-        breastplate = new Armour("A sturdy plate", 18.12, "breastplate", true, false, 0, 6, 0,20,4);
-        healthpotion = new Consumable("A magical drink replenishing all your health", 0.2, "healthpotion", false, true, 0, 0, 0,10,2);
-        holywater = new Consumable("a flask filled with holy water. Very effective", 0.2, "holywater", false, true, 0, 0, 0,10,2);
-        apple = new Food("a green apple", 0.05, "apple", true, false, false, 0, 0, 0, 2,5,1);
-        cake = new Food("a delicious cake", 0.1, "cake", true, false, false, 0, 0, 0, 4,7,3);
-        steak = new Food("A juicy steak", 0.2, "steak", true, false, false, 0, 0, 0, 6,10,4);
+        knife = new Weapon("A sharp knife", 0.45, "knife", true, false, 1, 0, 1, 5, 1);
+        spear = new Weapon("A spear with an ornate head", 1.36, "spear", true, false, 2, 1, 2, 10, 2);
+        axe = new Weapon("A sturdy axe ", 1.81, "axe", true, false, 3, 0, 3, 15, 3);
+        mace = new Weapon("A mace", 1.81, "mace", true, false, 4, 0, 4, 20, 4);
+        sword = new Weapon("your family sword", 1.36, "sword", true, false, 5, 1, 5, 100, 1);
+        leather_vest = new Armour("leather armour", 4.53, "leather", true, false, 0, 2, 0, 10, 2);
+        chainmail = new Armour("A chain shirt", 9.06, "chain", true, false, 0, 4, 0, 15, 3);
+        breastplate = new Armour("A sturdy plate", 18.12, "breastplate", true, false, 0, 6, 0, 20, 4);
+        healthpotion = new Consumable("A magical drink replenishing all your health", 0.2, "healthpotion", false, true, 0, 0, 0, 10, 2);
+        holywater = new Consumable("a flask filled with holy water. Very effective", 0.2, "holywater", false, true, 0, 0, 0, 10, 2);
+        apple = new Food("a green apple", 0.05, "apple", true, false, false, 0, 0, 0, 2, 5, 1);
+        cake = new Food("a delicious cake", 0.1, "cake", true, false, false, 0, 0, 0, 4, 7, 3);
+        steak = new Food("A juicy steak", 0.2, "steak", true, false, false, 0, 0, 0, 6, 10, 4);
 
 
         // add items to collections per room
@@ -150,17 +148,17 @@ public class Game {
         }
 
         // Create Characters
-        rat = new NPC("Rat", 5, 10, 1, 4, true, false, "A giant rat",0);
-        kobold= new NPC("kobold",7,10,2,4,true,false,"A kobold looking at you with murderous eyes",0);
-        goblin = new NPC("Goblin", 10, 12, 2, 5, true, false, "A small green humanoid",0);
-        gnoll= new NPC("gnoll",12,12,3,5,true,false,"A man with a dog's head",0);
-        orc = new NPC("Orc", 15, 14, 3, 6, true, false, "A towering green giant",0);
-        trader = new NPC("Khajit", 200, 20, 10, 10, false, true, "A friendly gnome selling some wares",200);
+        rat = new NPC("Rat", 5, 10, 1, 4, true, false, "A giant rat", 0);
+        kobold = new NPC("kobold", 7, 10, 2, 4, true, false, "A kobold looking at you with murderous eyes", 0);
+        goblin = new NPC("Goblin", 10, 12, 2, 5, true, false, "A small green humanoid", 0);
+        gnoll = new NPC("gnoll", 12, 12, 3, 5, true, false, "A man with a dog's head", 0);
+        orc = new NPC("Orc", 15, 14, 3, 6, true, false, "A towering green giant", 0);
+        trader = new NPC("Khajit", 200, 20, 10, 10, false, true, "A friendly gnome selling some wares", 200);
         merchant = trader;
-        boss = new NPC("Skeleton King", 30, 5, 6, 8, false, false, "A skeleton with a shining crown and a familiar sword",50);
+        boss = new NPC("Skeleton King", 30, 5, 6, 8, false, false, "A skeleton with a shining crown.\nOn the ground you spy a familiar sword.", 50);
 
         // add NPC's to spawnList and wanderingMonster
-        Collections.addAll(spawnList, rat,kobold, goblin,gnoll, orc, boss);
+        Collections.addAll(spawnList, rat, kobold, goblin, gnoll, orc, boss);
 
         //Assign trader to library and goods to trader
         merchant.setCurrentRoom(library);
@@ -179,9 +177,11 @@ public class Game {
         player.setCurrentRoom(entrance);
         player.setHands(knife);
 
-
     }
 
+    /**
+     * Drops the monsters into rooms.
+     */
     private void roamNPC() {
         for (NPC npc : spawnList) {
             if (!npc.getName().contains("Skeleton King")) {
@@ -211,14 +211,15 @@ public class Game {
                 Command command = parser.getCommand();
                 finished = processCommand(command);
             }
-            while(!finished && !inCombat && alive && trading) {
-                Action action = tradeParser.getAction();
-                trading = processAction(action);
-            }
             while (!finished && inCombat && alive) {
                 Command command = parser.getCommand();
                 finished = processCommand(command);
             }
+            while (!finished && !inCombat && alive && trading) {
+                Action action = tradeParser.getAction();
+                trading = processAction(action);
+            }
+
         }
         if (winner) {
             System.out.println("You have retrieved the ancestral blade. Congratulations!");
@@ -242,11 +243,11 @@ public class Game {
         System.out.println("Dungeon Crawl tasks you with finding your family's lost weapon");
         System.out.println("Type 'help' if you need help.");
         System.out.println("It's with a decent amount of trepidation that you descend the stairs in to the dungeon.\nYou've heard the rumours of the wealth hoarded by its denizens.\nYou know for a fact that your brother descended into here, never to be seen again.\nWith him, he was carrying the ancestral blade of your family.\nCan you retrieve the blade and defeat the evil that lurks here?");
-        printInfo();
+        printLocationInfo();
     }
 
     /**
-     * Given a command, process (that is: execute) the command.
+     * Given a command, process (that is: execute) the command, depending on whether the player is in combat or not.
      *
      * @param command The command to be processed.
      * @return true If the command ends the game, false otherwise.
@@ -259,7 +260,7 @@ public class Game {
             switch (commandWord) {
                 case STATS:
                     printStats();
-                break;
+                    break;
                 case HELP:
                     printHelp();
                     break;
@@ -320,7 +321,7 @@ public class Game {
                     printLocationInfo();
                     break;
                 case INFO:
-                    printCombatInfo();
+                    System.out.println(printinfo());
                     break;
                 case USE:
                     useItem(command);
@@ -328,7 +329,9 @@ public class Game {
                 case ATTACK:
                     fight();
                     checkNPC();
-                    printCombatInfo();
+                    if (player.alive() && combatant != null) {
+                        printCombatInfo();
+                    }
                     break;
                 case UNKNOWN:
                     System.out.println("I don't know what you mean");
@@ -350,50 +353,70 @@ public class Game {
         return wantToQuit;
     }
 
-    private boolean processAction(Action action){
-        boolean wanttoTrade=true;
-        if(merchant.inventory.contains(action.getSecondWord()) || player.inventory.contains(action.getSecondWord())){
-        Item item= merchant.bagGetItem(action.getSecondWord());
-        Item item2= player.bagGetItem(action.getSecondWord());
+    /**
+     * Processes actions while trading.
+     *
+     * @param action
+     * @returns whether you are still trading or not.
+     */
+    private boolean processAction(Action action) {
+        checkMerchant();
+        boolean wanttoTrade = true;
+        if (merchant.inventory.contains(merchant.bagGetItem(action.getSecondWord())) || player.inventory.contains(player.bagGetItem(action.getSecondWord()))) {
+            Item item = merchant.bagGetItem(action.getSecondWord());
+            Item item2 = player.bagGetItem(action.getSecondWord());
 
-        TradeAction tradeAction=action.getTradeAction();
-        switch (tradeAction){
-            case BUY:
-                buy(item);
-                System.out.println(player.inventory());
-                System.out.println(playerGold());
-                break;
-            case SELL:
-                sell(item2);
-                System.out.println(player.inventory());
-                System.out.println(playerGold());
-                break;
-            case LEAVE:
-                wanttoTrade=false;
-                System.out.println("You leave the trader behind");
-                Random r=new Random();
-                int i=r.nextInt(collection.size());
-                merchant.setCurrentRoom(collection.get(i));
-                printLocationInfo();
-            case UNKNOWN:
-                System.out.println("The trader looks at you wearily");
-                break;
-            default:
-                System.out.println("I don't know what you mean");
-        }} else {
-            TradeAction tradeAction=action.getTradeAction();
-            switch (tradeAction){
+            TradeAction tradeAction = action.getTradeAction();
+            switch (tradeAction) {
+                case BUY:
+                    buy(item);
+                    System.out.println(player.inventory());
+                    System.out.println(playerGold());
+                    break;
+                case SELL:
+                    sell(item2);
+                    System.out.println(player.inventory());
+                    System.out.println(playerGold());
+                    break;
+                case LEAVE:
+                    wanttoTrade = false;
+                    System.out.println("You leave the trader behind");
+                    Random r = new Random();
+                    int i = r.nextInt(collection.size());
+                    merchant.setCurrentRoom(collection.get(i));
+                    printLocationInfo();
+                case UNKNOWN:
+                    System.out.println("The trader looks at you wearily");
+                    break;
+                case HELP:
+                    printTrade();
+                    break;
+                case BALANCE:
+                    System.out.println(playerGold());
+                    break;
+                default:
+                    System.out.println("I don't know what you mean");
+            }
+        } else {
+            TradeAction tradeAction = action.getTradeAction();
+            switch (tradeAction) {
                 case SELL:
                 case BUY:
                     System.out.println("buy or sell a valid item");
                     break;
                 case LEAVE:
-                    wanttoTrade=false;
+                    wanttoTrade = false;
                     System.out.println("You leave the trader behind");
-                    Random r=new Random();
-                    int i=r.nextInt(collection.size());
+                    Random r = new Random();
+                    int i = r.nextInt(collection.size());
                     merchant.setCurrentRoom(collection.get(i));
                     printLocationInfo();
+                    break;
+                case HELP:
+                    printTrade();
+                    break;
+                case BALANCE:
+                    System.out.println(playerGold());;
                     break;
                 case UNKNOWN:
                     System.out.println("The trader looks at you wearily");
@@ -402,19 +425,30 @@ public class Game {
                     System.out.println("I don't know what you mean.");
             }
 
-        } return wanttoTrade;
+        }
+        return wanttoTrade;
     }
 
+    /**
+     * Sells the specified item from your inventory.
+     *
+     * @param item2
+     */
     private void sell(Item item2) {
-        if(player.inventory().contains(item2.getName())){
+        if (player.inventory().contains(item2.getName())) {
             player.removeItem(item2);
             merchant.addItem(item2);
-            player.setGold(player.getGold()+ item2.getSellCost());
+            player.addGold(item2.getSellCost());
         } else {
             System.out.println("The merchant doesn't have that for sale.");
         }
     }
 
+    /**
+     * Buys the specified item from the merchant's bag.
+     *
+     * @param item
+     */
     private void buy(Item item) {
         if (player.getGold() >= item.getBuyCost()) {
             if (merchant.inventory().contains(item.getName())) {
@@ -442,6 +476,13 @@ public class Game {
         System.out.println();
     }
 
+    private void printTrade(){
+        System.out.println("You are trading with " + merchant.getName());
+        System.out.println("Possible actions are:");
+        System.out.println(tradeParser.showActions());
+        System.out.println();
+    }
+
     /**
      * Try to go in one direction. If there is an exit, enter
      * the new room, otherwise print an error message.
@@ -466,21 +507,41 @@ public class Game {
                 if (npc.getMovable()) {
                     String exit = npc.getCurrentRoom().getRandomExit();
                     npc.go(exit);
-                    }
+                }
             }
         }
     }
 
+    /**
+     * try and take an item from the floor to put it in your bag.
+     *
+     * @param command
+     */
     private void takeItem(Command command) {
+
         if (!command.hasSecondWord()) {
             // if there is no second word, we don't know where to go...
             System.out.println("Take what?");
         } else {
-            if (player.take(command.getSecondWord())) ;
-            System.out.println(player.getInfo());
+            String name = command.getSecondWord();
+            if (player.getCurrentRoom().hasItem(name)) {
+                if (player.take(name)) {
+                    System.out.println(player.getInfo());
+                } else {
+                    System.out.println("You carry too much weight");
+                }
+            } else {
+                System.out.println("There is no item with that name");
+            }
         }
     }
 
+
+    /**
+     * Drop an item from your bag on to the floor.
+     *
+     * @param command
+     */
     private void dropItem(Command command) {
         if (!command.hasSecondWord()) {
             // if there is no second word, we don't know where to go...
@@ -494,29 +555,44 @@ public class Game {
         }
     }
 
-    public void useItem(Command command){
-        if(!command.hasSecondWord()){
-            // if there is no second word, we don't know what to use
-            System.out.println("Use what?");
-        } else {
-            if(player.inventory().contains(command.getSecondWord())){
-                if(command.getSecondWord().contains("healthpotion")){
-                player.useHealth(command.getSecondWord());
+    /**
+     * Uses either a healing potion or a holy water in combat.
+     *
+     * @param command
+     */
+    public void useItem(Command command) {
+        Item item = player.bagGetItem(command.getSecondWord());
+        if (player.inventory().contains(command.getSecondWord()) && item.isConsumable()) {
+            if (!command.hasSecondWord()) {
+                // if there is no second word, we don't know what to use
+                System.out.println("Use what?");
             } else {
-                if (command.getSecondWord().contains("holywater") && combatant.getName().contains("Skeleton King")){
-                    System.out.println("It's super effective");
-                    player.useHoly("holywater");
-                    combatant.setHealth(combatant.getHealth()-20);
+                if (player.inventory().contains(command.getSecondWord())) {
+                    if (command.getSecondWord().contains("healthpotion")) {
+                        player.useHealth(command.getSecondWord());
+                    } else {
+                        if (command.getSecondWord().contains("holywater") && combatant.getName().contains("Skeleton King")) {
+                            System.out.println("It's super effective");
+                            player.useHoly("holywater");
+                            combatant.setHealth(combatant.getHealth() - 20);
+                        } else {
+                            System.out.println("You can't use that, sorry.");
+                        }
+                    }
                 } else {
-                    System.out.println("You can't use that, sorry.");
+                    System.out.println("Your bag doesn't have that.");
                 }
-                }
-        }}
+            }
+        }
     }
-
+    /**
+     * Checks whether player is in combat or not and returns a string indicating that condition. This is important for processing of commands.
+     *
+     * @return
+     */
     public String isInCombat() {
         String message = "";
-        if (inCombat = true) {
+        if (inCombat) {
             message += "You are in combat, exploration is forbidden";
         } else {
             message += "You are not in combat, combat actions are forbidden";
@@ -524,20 +600,27 @@ public class Game {
         return message;
     }
 
-    private String playerGold(){
+    /**
+     * @return how much gold the player has on them.
+     */
+    private String playerGold() {
         return "You have " + player.getGold() + " gold in your coinpurse.";
     }
 
-    private void printInfo() {
-        System.out.println(player.getCurrentRoom().getLongDescription());
-        System.out.println();
-    }
+    /**
+     * Prints out the information of the current room.
+     */
 
     private void printLocationInfo() {
         System.out.println(player.getInfo());
         System.out.println();
     }
 
+    /**
+     * Processes eat command and prints out what you've eaten and how much health player is at.
+     *
+     * @param command
+     */
     private void eatItem(Command command) {
         if (!command.hasSecondWord()) {
             System.out.println("eat what?");
@@ -551,6 +634,9 @@ public class Game {
         }
     }
 
+    /**
+     * Checks to see if there are monsters where the player is after moving, and puts incombat to true or false accordingly.
+     */
     private void checkNPC() {
         if (combatant == null) {
             for (NPC npc : spawnList) {
@@ -560,79 +646,86 @@ public class Game {
                 }
             }
         } else {
-            if(spawned){
-                inCombat=true;
+            if (spawned) {
+                inCombat = true;
             }
-            if (combatant.getHealth() <= 0) {
-                for (NPC npc : spawnList) {
-                        if (npc.getCurrentRoom() == player.getCurrentRoom() && !npc.getFriendly() && npc.alive()) {
-                            combatant = npc;
-                            inCombat=true;
-                        } else {
-                            inCombat= false;
-                        }
-                }
-
-                }
-            }
-        }
-
-
-    private void checkMerchant(){
-        if(player.getCurrentRoom()==merchant.getCurrentRoom()){
-            System.out.println("You meet " + merchant.getName() + ", a friendly merchant.");
-            System.out.println("He has " + merchant.inventory() + "\nfor sale");
-            trading=true;
         }
     }
 
+    /**
+     * Checks to see if player and merchant are in the same room and sets trading to true if so.
+     */
+    private void checkMerchant() {
+        if (player.getCurrentRoom() == merchant.getCurrentRoom()) {
+            System.out.println("You meet " + merchant.getName() + ", a friendly merchant.");
+            System.out.println("He has " + merchant.inventory() + "\nfor sale");
+            trading = true;
+        }
+    }
+
+    /**
+     * main fight sequence used with attack command. Checks to see if player hits, then if monster is still alive.
+     * If monster is alive, it attacks back. Also prints out hit, miss and victory messages.
+     *
+     * @return if player is still in combat after one round of fighting.
+     */
     private boolean fight() {
         int playerAttack = player.attack();
         int monsterAttack = combatant.attack();
-        Room heaven = new Room("bla", "bla");
         if (playerAttack >= combatant.getArmourClass()) {
             int damage = player.damage();
             System.out.println("You attack, rolling " + playerAttack + ",hit and do " + damage + " damage!");
             combatant.setHealth(combatant.getHealth() - damage);
         } else {
             System.out.println("You attack, rolling " + playerAttack + " but miss");
-        } if (combatant.alive()) {
+        }
+        if (combatant.alive()) {
             if (monsterAttack >= player.getArmourClass()) {
                 int damage = combatant.damage();
                 System.out.println("The " + combatant.getName() + " hits you and deals " + damage + " damage!");
                 player.setHealth(player.getHealth() - damage);
+
             } else {
                 System.out.println("The " + combatant.getName() + " misses.");
+
             }
 
         } else {
-            if(spawned){
-                player.setGold(player.getGold()+combatant.setRandomGold());
-                spawned=false;
-                inCombat=false;
-                System.out.println("You are victorious over " + combatant.getName()+".");
-                player.increaseMonsters_Defeated();
-                player.increaseLevel();
-                combatant=null;
+            if (spawned) {
+                player.setGold(player.getGold() + combatant.setRandomGold());
+                spawned = false;
+                inCombat = false;
+                System.out.println("You are victorious over " + combatant.getName() + ".");
+                checkLevel();
+                combatant = null;
                 printLocationInfo();
+                checkMerchant();
             } else {
                 spawnList.remove(combatant);
-                combatant.setCurrentRoom(heaven);
                 inCombat = false;
                 player.setGold(player.getGold() + combatant.setRandomGold());
                 checkLevel();
                 System.out.println("You are victorious over " + combatant.getName() + ".");
+                combatant = null;
                 printLocationInfo();
+                checkMerchant();
             }
         }
         return inCombat;
     }
 
-
+    /**
+     * Gives information about the monster player is facing.
+     */
     private void printCombatInfo() {
         System.out.println("There's a " + combatant.getName() + " standing in front of you. Prepare for combat");
     }
 
+    /**
+     * equips the item specified in command. Also checks to see if it's a weapon or an armour, and will put it in the right equipment slot.
+     *
+     * @param command
+     */
     private void equip(Command command) {
         if (!command.hasSecondWord()) {
             System.out.println("Equip what?");
@@ -650,43 +743,55 @@ public class Game {
         }
     }
 
-    private void spawn(){
-        HashMap<Integer,NPC> wanderingMonster=new HashMap<>();
+    /**
+     * Spawns a monster on the player after 3 moves. This was done to increase level appropriate monsters to the player to fight, and increase tension while exploring the dungeon.
+     */
+    private void spawn() {
+        HashMap<Integer, NPC> wanderingMonster = new HashMap<>();
         NPC zombie, skeleton, ghoul, wight, vampire;
-        zombie =new NPC("zombie",5,8,0,4,false,false,"a decaying corpse",0);
-        skeleton=new NPC("skeleton",7,10,1,4,false,false,"magically animated bones",0);
-        ghoul = new NPC("ghoul",9,10,1,5,false,false,"a flesh eating undead",0);
-        wight=new NPC("wight",11,12,2,5,false,false,"a translucent noble of ages past",0);
-        vampire=new NPC("vampire",13,12,3,6,false,false,"a humanoid with pointy teeth",0);
-        wanderingMonster.put(1,zombie);
-        wanderingMonster.put(2,skeleton);
-        wanderingMonster.put(3,ghoul);
-        wanderingMonster.put(4,wight);
+        zombie = new NPC("zombie", 5, 8, 0, 4, false, false, "a decaying corpse", 0);
+        skeleton = new NPC("skeleton", 7, 10, 1, 4, false, false, "magically animated bones", 0);
+        ghoul = new NPC("ghoul", 9, 10, 1, 5, false, false, "a flesh eating undead", 0);
+        wight = new NPC("wight", 11, 12, 2, 5, false, false, "a translucent noble of ages past", 0);
+        vampire = new NPC("vampire", 13, 12, 3, 6, false, false, "a humanoid with pointy teeth", 0);
+        wanderingMonster.put(1, zombie);
+        wanderingMonster.put(2, skeleton);
+        wanderingMonster.put(3, ghoul);
+        wanderingMonster.put(4, wight);
         wanderingMonster.put(5, vampire);
-        if(moves>2){
-            NPC monster=wanderingMonster.get(player.getLevel());
+        if (moves > 2) {
+            NPC monster = wanderingMonster.get(player.getLevel());
             monster.setCurrentRoom(player.getCurrentRoom());
-            moves=0;
-            combatant=monster;
-            spawned=true;
+            moves = 0;
+            combatant = monster;
+            spawned = true;
         }
     }
 
-    private void printStats(){
+    /**
+     * Shows the player statistics (health, attack, defense, and equipped items.
+     */
+    private void printStats() {
         System.out.println(player.showStats());
         System.out.println(player.checkEquipment());
     }
 
-    private void checkLevel(){
-        player.increaseMonsters_Defeated();
-        if(player.increaseLevel()){
-            System.out.println("you level up, gain "+player.getMax_health()+ " hitpoints and 1 to all your other stats.");
-        }
+    private String printinfo(){
+        String info="You currently have " + player.getHealth() + " health.";
+        info += player.inventory();
+        info += "You are facing" + combatant.getDescription();
+        return info;
     }
 
-    public static void main(String[] args) {
-        Game game = new Game();
-        game.play();
+    /**
+     * Method to see if player level increases after a certain amount of monsters are defeated.
+     */
+    private void checkLevel() {
+        player.increaseMonsters_Defeated();
+        if (player.increaseLevel()) {
+            System.out.println("you level up, gain " + player.getMax_health() + " hitpoints and 1 to all your other stats.");
+        }
     }
 }
+
 

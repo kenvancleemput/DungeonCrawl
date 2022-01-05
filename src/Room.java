@@ -28,8 +28,7 @@ public class Room
 
     /**
      * Create a room described "description". Initially, it has
-     * no exits. "description" is something like "a kitchen" or
-     * "an open court yard".
+     * no exits. "description" is the text players will see on the console.
      * @param description The room's description.
      */
     public Room(String name, String description)
@@ -43,33 +42,10 @@ public class Room
     }
 
     /**
-     * Define the exits of this room.  Every direction either leads
-     * to another room or is null (no exit there).
-     * @param north The north exit.
-     * @param east The east exit.
-     * @param south The south exit.
-     * @param west The west exit.
+     *
+     * @param direction
+     * @return the exit in the direction specified.
      */
-    public void setExits(Room north, Room east, Room south, Room west)
-    {
-        if(north != null)
-            exits.put("north", north);
-        if(east != null)
-            exits.put("east", east);
-        if(south != null)
-            exits.put("south", south);
-        if(west != null)
-            exits.put("west", west);
-    }
-
-    /**
-     * @return The description of the room.
-     */
-    public String getDescription()
-    {
-        return description;
-    }
-
     public Room getExit(String direction) {
         return exits.get(direction);
     }
@@ -86,10 +62,20 @@ public class Room
         return exit ;
     }
 
+    /**
+     *
+     * @param direction one of the possible exits.
+     * @param room the room that exit goes to.
+     */
     public void setExit(String direction, Room room){
         exits.put(direction, room);
     }
 
+    /**
+     *
+     * @return a description of the room with all possible exits
+     * and the items in that room.
+     */
     public String getLongDescription() {
         String info = description + ".\n" + getExitString();
         if(!items.isEmpty()) {
@@ -100,12 +86,25 @@ public class Room
         }             return info;
     }
 
+    /**
+     * Adds items to the Arraylist of items in a certain room.
+     * @param item an item that a player can find.
+     */
     public void addItem(Item item){
         this.items.add(item);    }
 
+    /**
+     * Adds items to Arraylist that contains all items over the whole dungeon
+     * Used for random distributing of items over the dungeon.
+     * @param item
+     */
     public void addToCollection(Item item){
         this.collection.add(item);
     }
+
+    /**
+     * Sets random item per room.
+     */
     public void getRandomItems(){
         Random r = new Random();
         int i=r.nextInt(5);
@@ -116,22 +115,42 @@ public class Room
 
     }
 
+    /**
+     *
+     * @param name the name of an item
+     * @return whether the room contains that item.
+     */
     public boolean hasItem(String name){
         for (Item item : items){
             if (item.getName().equals(name)) return true;
         } return false;
     }
 
+    /**
+     *
+     * @param name the name of the item
+     * @return an object of that item.
+     */
     public Item getItem(String name){
         for (Item item : items){
             if(item.getName().equals(name)) return item;
         } return null;
     }
 
+    /**
+     * Removes an item from the arraylist of items in the room
+     * after picking it up.
+     * @param item the item being taken.
+     */
     public void removeItem(Item item){
         items.remove(item);
     }
 
+    /**
+     * Get a random exit from the current room. Used for moving monsters
+     * or when the player decides to run from combat.
+     * @return a possible exit from the room
+     */
     public String getRandomExit(){
         int index= 0;
         HashMap<Integer, String> getExit = new HashMap<>();
@@ -144,11 +163,6 @@ public class Room
         return getExit.get(i);
 
     }
-
-    public String getName(){
-        return name;
-}
-
 }
 
 
